@@ -6,7 +6,7 @@
   "scripts": {
     "build": "remix build",
     "dev": "remix dev --manual -c \"npm run start\"",
-    "start": "wrangler pages dev ./public",
+    "start": "wrangler pages dev ./public --kv=PROJECTS_KV",
     "typecheck": "tsc",
     "pages:deploy": "npm run build && wrangler pages deploy ./public",
     "pages:preview": "npm run build && wrangler pages dev ./public"
@@ -74,6 +74,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250109.0",
     "@eslint/js": "^9.9.0",
     "@tailwindcss/typography": "^0.5.15",
     "@types/node": "^22.5.5",
@@ -91,6 +92,7 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1",
+    "vite-tsconfig-paths": "^5.1.4",
     "wrangler": "^3.100.0"
   }
 }

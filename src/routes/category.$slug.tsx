@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { json, LoaderFunction } from "@remix-run/cloudflare";
+import { json, LoaderFunction, LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { useLoaderData, Link, useNavigation } from "@remix-run/react";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -57,7 +57,7 @@ async function getProjectDetails(projectId: string): Promise<ProjectDetails | nu
   }
 }
 
-export const loader: LoaderFunction = async ({ params }) => {
+export const loader: LoaderFunction = async ({ params, context }: LoaderFunctionArgs) => {
   const categories = await getCategories();
   const category = categories[params.slug!];
 
@@ -65,20 +65,43 @@ export const loader: LoaderFunction = async ({ params }) => {
     throw new Response("Category not found", { status: 404 });
   }
 
+  const { PROJECTS_KV } = (context as { PROJECTS_KV: KVNamespace });
+
   // Only fetch details for first 10 projects
   const initialProjects = category.projects.slice(0, 10);
   const projectsWithDetails = await Promise.all(
     initialProjects.map(async (project) => {
-      const details = await getProjectDetails(project.id);
-      return { ...project, details };
+      try {
+        // Try to get from KV first
+        const cacheKey = `project:${project.id}`;
+        const cached = await PROJECTS_KV.get(cacheKey, { type: "json" });
+        if (cached) {
+          const parsedCache = cached as ProjectDetails;
+          return { ...project, details: parsedCache };
+        }
+
+        // If not in cache, fetch from API and cache
+        const apiDetails = await getProjectDetails(project.id);
+        if (apiDetails) {
+          await PROJECTS_KV.put(cacheKey, JSON.stringify(apiDetails), {
+            expirationTtl: 86400 // 24 hours in seconds
+          });
+          return { ...project, details: apiDetails };
+        }
+        
+        return { ...project, details: null };
+      } catch (error) {
+        console.error('Error fetching project details:', error);
+        const fallbackDetails = await getProjectDetails(project.id);
+        return { ...project, details: fallbackDetails };
+      }
     })
-  );
+  ) as (Project & { details: ProjectDetails | null })[];
 
   return json<LoaderData>({
     category: {
       ...category,
       projects: projectsWithDetails,
-      // Send remaining projects without details
       remainingProjects: category.projects.slice(10),
     },
   });
