@@ -20,8 +20,8 @@ const ShareDialogControls = ({
   onTwitterShare
 }: ShareDialogControlsProps) => {
   return (
-    <div className="flex gap-2 justify-between items-center">
-      <div className="flex gap-2">
+    <div className="flex flex-col sm:flex-row gap-4 justify-between items-stretch sm:items-center">
+      <div className="flex gap-2 items-center">
         <Button onClick={onZoomOut} variant="outline" size="icon">
           <ZoomOut className="w-4 h-4" />
         </Button>
@@ -32,16 +32,16 @@ const ShareDialogControls = ({
           {Math.round(zoom * 100)}%
         </span>
       </div>
-      <div className="flex gap-2">
-        <Button onClick={onTwitterShare} variant="outline">
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={onTwitterShare} variant="outline" className="flex-1 sm:flex-none">
           <Twitter className="w-4 h-4 mr-2" />
           Share on X
         </Button>
-        <Button onClick={onCopy} variant="outline">
+        <Button onClick={onCopy} variant="outline" className="flex-1 sm:flex-none">
           <Copy className="w-4 h-4 mr-2" />
           Copy
         </Button>
-        <Button onClick={onDownload}>
+        <Button onClick={onDownload} className="flex-1 sm:flex-none">
           <Download className="w-4 h-4 mr-2" />
           Download
         </Button>

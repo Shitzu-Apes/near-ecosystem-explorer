@@ -196,7 +196,7 @@ export default function CategoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen w-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white overflow-x-hidden">
       <div className="max-w-[1200px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         <Link 
           to="/"
@@ -207,9 +207,9 @@ export default function CategoryPage() {
         </Link>
 
         <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold">{category.title}</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold break-words">{category.title}</h1>
           {category.isPriority && (
-            <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full bg-white/10">
+            <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full bg-white/10 shrink-0">
               Featured Category
             </span>
           )}
@@ -231,14 +231,12 @@ export default function CategoryPage() {
                 </div>
               </div>
 
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 overflow-hidden">
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <h2 className="text-2xl font-semibold">
-                      {project.name}
-                    </h2>
+                  <div className="flex flex-wrap items-center gap-3 min-w-0">
+                    <h2 className="text-2xl font-semibold break-words">{project.name}</h2>
                     {project.phase && (
-                      <div className={`flex items-center gap-2 rounded-full px-3 py-1 ${getPhaseConfig(project.phase).className}`}>
+                      <div className={`flex items-center gap-2 rounded-full px-3 py-1 ${getPhaseConfig(project.phase).className} shrink-0`}>
                         <span className="relative flex h-2 w-2">
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-current"></span>
                           <span className="relative inline-flex rounded-full h-2 w-2 bg-current"></span>
@@ -251,7 +249,7 @@ export default function CategoryPage() {
                     Object.entries(project.details.profile.tokens).some(([_, token]) => 
                       token.symbol.trim() && token.name.trim() && token.icon?.small
                     ) && (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 shrink-0">
                       {Object.entries(project.details.profile.tokens)
                         .filter(([_, token]) => token.symbol.trim() && token.name.trim() && token.icon?.small)
                         .map(([symbol, token]) => {
@@ -268,7 +266,7 @@ export default function CategoryPage() {
                           );
 
                           return (
-                            <div key={symbol}>
+                            <div key={symbol} className="shrink-0">
                               {token.name && (
                                 <a
                                   href={coingeckoUrl}
@@ -293,9 +291,7 @@ export default function CategoryPage() {
                 </div>
                 
                 {project.details?.profile?.tagline && (
-                  <p className="text-white/80 mb-4 text-lg">
-                    {project.details.profile.tagline}
-                  </p>
+                  <p className="text-white/80 mb-4 text-lg break-words">{project.details.profile.tagline}</p>
                 )}
 
                 <div className="flex flex-wrap gap-3 mb-4">
@@ -304,7 +300,7 @@ export default function CategoryPage() {
                       href={project.details.profile.dapp}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary/20 hover:bg-primary/30 transition-colors"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary/20 hover:bg-primary/30 transition-colors shrink-0"
                     >
                       <PlayCircle className="w-4 h-4" />
                       Launch App
@@ -315,7 +311,7 @@ export default function CategoryPage() {
                       href={project.details.profile.linktree.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-white/20 hover:bg-white/30 transition-colors text-white"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-white/20 hover:bg-white/30 transition-colors text-white shrink-0"
                     >
                       <Globe className="w-4 h-4" />
                       Website
@@ -326,7 +322,7 @@ export default function CategoryPage() {
                       href={project.details.profile.linktree.github}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#171515] hover:bg-[#171515]/80 transition-colors text-white"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#171515] hover:bg-[#171515]/80 transition-colors text-white shrink-0"
                     >
                       <Github className="w-4 h-4" />
                       GitHub
@@ -337,7 +333,7 @@ export default function CategoryPage() {
                       href={project.details.profile.linktree.twitter}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-black hover:bg-black/80 transition-colors text-white"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-black hover:bg-black/80 transition-colors text-white shrink-0"
                     >
                       <XIcon />
                       X
@@ -348,21 +344,10 @@ export default function CategoryPage() {
                       href={project.details.profile.linktree.telegram}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#229ED9] hover:bg-[#229ED9]/80 transition-colors text-white"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#229ED9] hover:bg-[#229ED9]/80 transition-colors text-white shrink-0"
                     >
                       <TelegramIcon />
                       Telegram
-                    </a>
-                  )}
-                  {project.details?.profile?.linktree?.discord && project.details.profile.linktree.discord.trim() && (
-                    <a
-                      href={project.details.profile.linktree.discord}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#5865F2] hover:bg-[#5865F2]/80 transition-colors text-white"
-                    >
-                      <DiscordIcon />
-                      Discord
                     </a>
                   )}
                   {project.details?.profile?.linktree?.medium && project.details.profile.linktree.medium.trim() && (
@@ -370,7 +355,7 @@ export default function CategoryPage() {
                       href={project.details.profile.linktree.medium}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#00AB6C] hover:bg-[#00AB6C]/80 transition-colors text-white"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#00AB6C] hover:bg-[#00AB6C]/80 transition-colors text-white shrink-0"
                     >
                       <MediumIcon />
                       Medium
@@ -379,15 +364,15 @@ export default function CategoryPage() {
                 </div>
 
                 {project.details?.profile?.description && (
-                  <div className="prose prose-invert max-w-none">
+                  <div className="prose prose-invert max-w-none overflow-hidden break-words">
                     <ReactMarkdown 
                       remarkPlugins={[remarkGfm]}
-                      className="text-white/80"
+                      className="text-white/80 break-words [word-break:break-word] [overflow-wrap:anywhere]"
                       components={{
-                        p: ({node, ...props}) => <p className="mb-4 whitespace-pre-line" {...props} />,
+                        p: ({node, ...props}) => <p className="mb-4 whitespace-pre-line break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
                         a: ({node, ...props}) => (
                           <a 
-                            className="text-primary hover:text-primary/80 transition-colors" 
+                            className="text-primary hover:text-primary/80 transition-colors break-words [word-break:break-word] [overflow-wrap:anywhere]" 
                             target="_blank" 
                             rel="noopener noreferrer" 
                             {...props}
@@ -395,22 +380,22 @@ export default function CategoryPage() {
                         ),
                         img: ({node, ...props}) => (
                           <img 
-                            className="max-w-[500px] max-h-[400px] object-contain rounded-lg my-4" 
+                            className="max-w-full h-auto object-contain rounded-lg my-4" 
                             {...props}
                           />
                         ),
-                        ul: ({node, ...props}) => <ul className="list-disc pl-6 mb-4" {...props} />,
-                        ol: ({node, ...props}) => <ol className="list-decimal pl-6 mb-4" {...props} />,
-                        li: ({node, ...props}) => <li className="mb-1" {...props} />,
-                        h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-4" {...props} />,
-                        h2: ({node, ...props}) => <h2 className="text-xl font-bold mb-3" {...props} />,
-                        h3: ({node, ...props}) => <h3 className="text-lg font-bold mb-2" {...props} />,
-                        pre: ({node, ...props}) => <pre className="bg-white/10 rounded p-4 mb-4 overflow-auto" {...props} />,
+                        ul: ({node, ...props}) => <ul className="list-disc pl-6 mb-4 break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
+                        ol: ({node, ...props}) => <ol className="list-decimal pl-6 mb-4 break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
+                        li: ({node, ...props}) => <li className="mb-1 break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
+                        h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-4 break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
+                        h2: ({node, ...props}) => <h2 className="text-xl font-bold mb-3 break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
+                        h3: ({node, ...props}) => <h3 className="text-lg font-bold mb-2 break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
+                        pre: ({node, ...props}) => <pre className="bg-white/10 rounded p-4 mb-4 overflow-x-auto whitespace-pre-wrap break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
                         code: ({node, ...props}) => (
-                          <code className="block bg-white/10 rounded p-4 mb-4" {...props} />
+                          <code className="block bg-white/10 rounded p-4 mb-4 overflow-x-auto whitespace-pre-wrap break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />
                         ),
                         blockquote: ({node, ...props}) => (
-                          <blockquote className="border-l-4 border-primary/50 pl-4 italic mb-4" {...props} />
+                          <blockquote className="border-l-4 border-primary/50 pl-4 italic mb-4 break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />
                         ),
                       }}
                     >
