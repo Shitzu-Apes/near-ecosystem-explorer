@@ -264,6 +264,17 @@ export default function Index() {
             />
           )}
         </div>
+
+        <div className="mt-12 text-center text-white/60 pb-4">
+          <a 
+            href="https://shitzuapes.xyz" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 hover:text-white transition-colors"
+          >
+            Built with <span className="text-red-400">❤️</span> by Shitzu
+          </a>
+        </div>
       </div>
     </div>
   );
