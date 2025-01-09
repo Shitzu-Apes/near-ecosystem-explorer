@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { json, LoaderFunction } from "@remix-run/cloudflare";
-import { useLoaderData, Link } from "@remix-run/react";
+import { useLoaderData, Link, useNavigation } from "@remix-run/react";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { getCategories } from "@/utils/projectUtils";
@@ -86,6 +86,7 @@ export const loader: LoaderFunction = async ({ params }) => {
 
 export default function CategoryPage() {
   const { category } = useLoaderData<LoaderData>();
+  const navigation = useNavigation();
   const [displayedProjects, setDisplayedProjects] = useState(category.projects);
   const [remainingProjects, setRemainingProjects] = useState(category.remainingProjects || []);
   const [hasMore, setHasMore] = useState(category.remainingProjects?.length > 0);
@@ -148,6 +149,19 @@ export default function CategoryPage() {
       }
     };
   }, [hasMore, isLoading]);
+
+  // Show loading skeleton only when navigating TO this category
+  if (navigation.state === "loading" && !navigation.location?.pathname.startsWith("/category/")) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-8">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="flex items-center justify-center h-[50vh]">
+            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-8">
@@ -333,6 +347,12 @@ export default function CategoryPage() {
                             className="text-primary hover:text-primary/80 transition-colors" 
                             target="_blank" 
                             rel="noopener noreferrer" 
+                            {...props}
+                          />
+                        ),
+                        img: ({node, ...props}) => (
+                          <img 
+                            className="max-w-[500px] max-h-[400px] object-contain rounded-lg my-4" 
                             {...props}
                           />
                         ),

@@ -1,5 +1,5 @@
 import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useNavigation } from "@remix-run/react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { getCategories } from "@/utils/projectUtils";
@@ -52,6 +52,7 @@ export const loader: LoaderFunction = async () => {
 
 export default function Index() {
   const { categories } = useLoaderData<LoaderData>();
+  const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [visibleCategories, setVisibleCategories] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
@@ -119,8 +120,21 @@ export default function Index() {
     })
     .filter((item): item is [string, Category] => item !== null);
 
+  // Show loading overlay when navigating to a category
+  const isNavigatingToCategory = navigation.state === "loading" && 
+    navigation.location?.pathname.startsWith("/category/");
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-8">
+      {isNavigatingToCategory && (
+        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <div className="text-lg text-white/80">Loading category...</div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-[1800px] mx-auto">
         <motion.h1 
           className="text-4xl font-bold mb-8 text-center flex items-center justify-center gap-4"
