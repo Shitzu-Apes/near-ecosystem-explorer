@@ -1,8 +1,10 @@
-import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
+import type { MetaFunction, LoaderFunction, LoaderFunctionArgs } from "@remix-run/cloudflare";
+import { json } from "@remix-run/cloudflare";
 import { useLoaderData, useNavigation } from "@remix-run/react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from 'framer-motion';
-import { getCategories } from "@/utils/projectUtils";
+import { categorizeProjects } from "@/utils/projectUtils";
+import { fetchProjects } from "@/utils/api";
 import CategoryCard from "@/components/CategoryCard";
 import ShareDialog from "@/components/ShareDialog";
 import CategoryControls from '@/components/CategoryControls';
@@ -45,20 +47,29 @@ interface LoaderData {
   categories: CategorizedProjects;
 }
 
-export const loader: LoaderFunction = async () => {
-  const categories = await getCategories();
-  return Response.json({ categories });
+export const loader: LoaderFunction = async ({ context }: LoaderFunctionArgs) => {
+  const { PROJECTS_KV } = context as { PROJECTS_KV: KVNamespace };
+  try {
+    const projects = await fetchProjects({ PROJECTS_KV });
+    const categories = categorizeProjects(projects);
+    return json({ categories });
+  } catch (error) {
+    console.error('Loader - Error fetching projects:', error);
+    return json({ categories: {} });
+  }
 };
 
 export default function Index() {
-  const { categories } = useLoaderData<LoaderData>();
+  const data = useLoaderData<LoaderData>();
   const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [visibleCategories, setVisibleCategories] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
-    Object.entries(categories).forEach(([key, category]) => {
-      initial[key] = category.isPriority || key === 'aurora-virtual-chain';
-    });
+    if (data.categories) {
+      Object.entries(data.categories).forEach(([key, category]) => {
+        initial[key] = category.isPriority
+      });
+    }
     return initial;
   });
   const [showOnlyFeatured, setShowOnlyFeatured] = useState(true);
@@ -86,12 +97,12 @@ export default function Index() {
     
     if (nextShowOnlyFeatured) {
       // Switching to featured only
-      Object.entries(categories).forEach(([key, category]) => {
+      Object.entries(data.categories).forEach(([key, category]) => {
         updatedVisibility[key] = category.isPriority;
       });
     } else {
       // Switching to all
-      Object.keys(categories).forEach(key => {
+      Object.keys(data.categories).forEach(key => {
         updatedVisibility[key] = true;
       });
     }
@@ -99,9 +110,11 @@ export default function Index() {
     setVisibleCategories(updatedVisibility);
   };
 
-  const sortedCategories = Object.entries(categories).sort((a, b) => 
-    a[1].title.localeCompare(b[1].title)
-  );
+  const sortedCategories = data.categories 
+    ? Object.entries(data.categories).sort((a, b) => 
+        a[1].title.localeCompare(b[1].title)
+      )
+    : [];
 
   const filteredCategories = sortedCategories
     .filter(([key]) => visibleCategories[key])
@@ -160,7 +173,7 @@ export default function Index() {
           <ShareDialog 
             open={shareDialogOpen}
             onOpenChange={setShareDialogOpen}
-            categories={categories} 
+            categories={data.categories} 
             visibleCategories={visibleCategories}
           />
           
@@ -180,10 +193,10 @@ export default function Index() {
             </MasonryLayout>
           </AnimatePresence>
 
-          {selectedCategory && categories[selectedCategory] && (
+          {selectedCategory && data.categories[selectedCategory] && (
             <ProjectsGrid
-              title={categories[selectedCategory].title}
-              projects={categories[selectedCategory].projects}
+              title={data.categories[selectedCategory].title}
+              projects={data.categories[selectedCategory].projects}
             />
           )}
         </div>

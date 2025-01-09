@@ -51,8 +51,6 @@ const SharePreview = ({ categories, visibleCategories, theme }: SharePreviewProp
         Math.floor(320 / Math.sqrt(totalProjects * 0.05))  // increased base value for scaling
       )
     );
-    console.log('maxIconSize', maxIconSize);
-    console.log('Math.floor(320 / Math.sqrt(totalProjects * 0.1)) ', Math.floor(640 / Math.sqrt(totalProjects * 0.1)));
 
     interface TreemapData {
       key: string;

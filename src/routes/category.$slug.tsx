@@ -4,7 +4,8 @@ import { useLoaderData, Link, useNavigation } from "@remix-run/react";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { getCategories } from "@/utils/projectUtils";
-import { Project, ProjectDetails } from "@/types/projects";
+import { fetchProjectDetails } from "@/utils/api";
+import { CategorizedProjects, Project, ProjectDetails } from "@/types/projects";
 import { 
   Github, 
   Globe,
@@ -46,54 +47,36 @@ interface LoaderData {
   };
 }
 
-async function getProjectDetails(projectId: string): Promise<ProjectDetails | null> {
-  try {
-    const response = await fetch(`https://api.nearcatalog.xyz/project?pid=${encodeURIComponent(projectId)}`);
-    if (!response.ok) return null;
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching project details:', error);
-    return null;
-  }
-}
-
 export const loader: LoaderFunction = async ({ params, context }: LoaderFunctionArgs) => {
-  const categories = await getCategories();
+  const { PROJECTS_KV } = context as { PROJECTS_KV: KVNamespace };
+  
+  // Try to get categories from KV first
+  const cached = await PROJECTS_KV.get("categories", { type: "json" });
+  const categories = cached ? (cached as CategorizedProjects) : await getCategories();
+
+  // Cache categories if not found in KV
+  if (!cached) {
+    await PROJECTS_KV.put("categories", JSON.stringify(categories), {
+      expirationTtl: 86400 // 24 hours in seconds
+    });
+  }
+
   const category = categories[params.slug!];
 
   if (!category) {
     throw new Response("Category not found", { status: 404 });
   }
 
-  const { PROJECTS_KV } = (context as { PROJECTS_KV: KVNamespace });
-
   // Only fetch details for first 10 projects
   const initialProjects = category.projects.slice(0, 10);
   const projectsWithDetails = await Promise.all(
     initialProjects.map(async (project) => {
       try {
-        // Try to get from KV first
-        const cacheKey = `project:${project.id}`;
-        const cached = await PROJECTS_KV.get(cacheKey, { type: "json" });
-        if (cached) {
-          const parsedCache = cached as ProjectDetails;
-          return { ...project, details: parsedCache };
-        }
-
-        // If not in cache, fetch from API and cache
-        const apiDetails = await getProjectDetails(project.id);
-        if (apiDetails) {
-          await PROJECTS_KV.put(cacheKey, JSON.stringify(apiDetails), {
-            expirationTtl: 86400 // 24 hours in seconds
-          });
-          return { ...project, details: apiDetails };
-        }
-        
-        return { ...project, details: null };
+        const details = await fetchProjectDetails(project.id, { PROJECTS_KV });
+        return { ...project, details };
       } catch (error) {
         console.error('Error fetching project details:', error);
-        const fallbackDetails = await getProjectDetails(project.id);
-        return { ...project, details: fallbackDetails };
+        return { ...project, details: null };
       }
     })
   ) as (Project & { details: ProjectDetails | null })[];
@@ -133,7 +116,7 @@ export default function CategoryPage() {
       // Fetch details for next batch
       const projectsWithDetails = await Promise.all(
         nextBatch.map(async (project) => {
-          const details = await getProjectDetails(project.id);
+          const details = await fetchProjectDetails(project.id);
           return { ...project, details };
         })
       );
