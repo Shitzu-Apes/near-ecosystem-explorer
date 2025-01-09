@@ -79,7 +79,6 @@ export const loader: LoaderFunction = async ({ params, context }: LoaderFunction
     initialProjects.map(async (project) => {
       try {
         const details = await fetchProjectDetails(project.id, { PROJECTS_KV });
-        console.log('Project phase:', project.name, project.phase);
         return { ...project, details };
       } catch (error) {
         console.error('Error fetching project details:', error);

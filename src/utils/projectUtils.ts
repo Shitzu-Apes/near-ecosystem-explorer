@@ -1,5 +1,6 @@
 import { ProjectsResponse, CategorizedProjects } from "@/types/projects";
 import { fetchProjects } from "./api";
+import { sortProjectsByScoreAndPhase } from "./sorting";
 
 export const categoryColors: { [key: string]: string } = {
   community: "bg-violet-600",
@@ -104,12 +105,6 @@ export const categorizeProjects = (
 
   // Distribute projects across categories
   sortedProjects.forEach(([projectId, project]) => {
-    console.log(
-      "Processing project:",
-      project.profile.name,
-      "Phase:",
-      project.profile.phase
-    );
     Object.entries(project.profile.tags).forEach(([tag, value]) => {
       if (!categories[tag]) {
         categories[tag] = {
@@ -139,6 +134,11 @@ export const categorizeProjects = (
         });
       }
     });
+  });
+
+  // Sort projects in each category
+  Object.values(categories).forEach((category) => {
+    category.projects = sortProjectsByScoreAndPhase(category.projects);
   });
 
   // Sort categories: priority categories first (alphabetically), then others (alphabetically)
