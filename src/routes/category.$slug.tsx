@@ -159,8 +159,8 @@ export default function CategoryPage() {
   // Show loading skeleton only when navigating TO this category
   if (navigation.state === "loading" && !navigation.location?.pathname.startsWith("/category/")) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-8">
-        <div className="max-w-[1200px] mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+        <div className="max-w-[1200px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
           <div className="flex items-center justify-center h-[50vh]">
             <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
@@ -170,18 +170,18 @@ export default function CategoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-8">
-      <div className="max-w-[1200px] mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+      <div className="max-w-[1200px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         <Link 
           to="/"
-          className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-6 group transition-colors"
+          className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-4 sm:mb-6 group transition-colors"
         >
           <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
           <span>Back to Map</span>
         </Link>
 
-        <div className="flex items-center gap-4 mb-8">
-          <h1 className="text-4xl font-bold">{category.title}</h1>
+        <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold">{category.title}</h1>
           {category.isPriority && (
             <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full bg-white/10">
               Featured Category
@@ -189,11 +189,11 @@ export default function CategoryPage() {
           )}
         </div>
 
-        <div className="grid gap-6">
+        <div className="grid gap-4 sm:gap-6">
           {displayedProjects.map((project) => (
             <div 
               key={project.name}
-              className="bg-gray-800/80 backdrop-blur-sm border border-white/10 shadow-xl rounded-lg p-6 flex gap-6 items-start hover:bg-gray-800/90 transition-colors"
+              className="bg-gray-800/80 backdrop-blur-sm border border-white/10 shadow-xl rounded-lg p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start hover:bg-gray-800/90 transition-colors"
             >
               <div className="flex-shrink-0">
                 <div className="w-20 h-20 rounded-full overflow-hidden bg-white/10 p-1">

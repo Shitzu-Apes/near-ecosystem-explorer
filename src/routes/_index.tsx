@@ -144,7 +144,7 @@ export default function Index() {
     navigation.location?.pathname.startsWith("/category/");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
       {isNavigatingToCategory && (
         <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
@@ -154,13 +154,13 @@ export default function Index() {
         </div>
       )}
 
-      <div className="max-w-[1800px] mx-auto">
+      <div className="max-w-[1800px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         <motion.h1 
-          className="text-4xl font-bold mb-8 text-center flex items-center justify-center gap-4"
+          className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-center flex items-center justify-center gap-3 sm:gap-4"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <img src="/icon.webp" alt="NEAR Protocol" className="w-12 h-12 rounded-lg" />
+          <img src="/icon.webp" alt="NEAR Protocol" className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg" />
           NEAR Protocol Ecosystem Map
         </motion.h1>
         
