@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { json, LoaderFunction, LoaderFunctionArgs } from "@remix-run/cloudflare";
+import { json, LoaderFunction, LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
 import { useLoaderData, Link, useNavigation } from "@remix-run/react";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -95,6 +95,45 @@ export const loader: LoaderFunction = async ({ params, context }: LoaderFunction
       remainingProjects: sortedProjects.slice(10),
     },
   });
+};
+
+export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
+  // Handle case where data is null or undefined
+  if (!data) {
+    return [
+      { title: "Category Not Found - NEAR Protocol Ecosystem Map" },
+      { name: "description", content: "This category could not be found in the NEAR Protocol ecosystem." }
+    ];
+  }
+
+  const { category } = data as LoaderData;
+  if (!category) {
+    return [
+      { title: "Category Not Found - NEAR Protocol Ecosystem Map" },
+      { name: "description", content: "This category could not be found in the NEAR Protocol ecosystem." }
+    ];
+  }
+
+  const title = `${category.title} - NEAR Protocol Ecosystem Map`;
+  const description = `Explore ${category.title} projects in the NEAR Protocol ecosystem. Discover active projects, development status, and detailed information.`;
+
+  return [
+    { title },
+    { name: "description", content: description },
+    
+    // Open Graph tags
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:type", content: "website" },
+    { property: "og:url", content: `https://nearprotocol.eco/category/${params.slug}` },
+    { property: "og:image", content: "https://nearprotocol.eco/icon.webp" },
+    
+    // Twitter Card tags
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
+    { name: "twitter:image", content: "https://nearprotocol.eco/icon.webp" },
+  ];
 };
 
 const getPhaseConfig = (phase: string | undefined) => {

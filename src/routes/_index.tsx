@@ -38,28 +38,32 @@ const breakpointColumns = {
 };
 
 export const meta: MetaFunction = () => {
+  const title = "NEAR Protocol Ecosystem Map";
+  const description = "Explore the comprehensive ecosystem map of NEAR Protocol. Discover DeFi, NFTs, AI, Gaming projects and more. Track development status and share custom ecosystem views.";
+
   return [
-    { title: "NEAR Protocol Ecosystem Map" },
-    { name: "description", content: "Explore the comprehensive ecosystem map of NEAR Protocol. Discover DeFi, NFTs, AI, Gaming projects and more. Track development status and share custom ecosystem views." },
+    { title },
+    { name: "description", content: description },
     { name: "keywords", content: "NEAR Protocol, Blockchain, DeFi, NFT, Web3, Cryptocurrency, Ecosystem Map, Blockchain Projects" },
     
     // Open Graph tags
-    { property: "og:title", content: "NEAR Protocol Ecosystem Map" },
-    { property: "og:description", content: "Explore the comprehensive ecosystem map of NEAR Protocol. Discover DeFi, NFTs, AI, Gaming projects and more." },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
     { property: "og:type", content: "website" },
     { property: "og:url", content: "https://nearprotocol.eco" },
     { property: "og:image", content: "https://nearprotocol.eco/icon.webp" },
+    { property: "og:site_name", content: "NEAR Protocol Ecosystem Map" },
     
     // Twitter Card tags
-    { name: "twitter:card", content: "summary_large_image" },
-    { name: "twitter:title", content: "NEAR Protocol Ecosystem Map" },
-    { name: "twitter:description", content: "Explore the comprehensive ecosystem map of NEAR Protocol. Discover DeFi, NFTs, AI, Gaming projects and more." },
+    { name: "twitter:card", content: "summary" },
+    { name: "twitter:site", content: "@NEARProtocol" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
     { name: "twitter:image", content: "https://nearprotocol.eco/icon.webp" },
     
     // Additional SEO tags
     { name: "robots", content: "index, follow" },
     { name: "author", content: "NEAR Protocol Ecosystem Map" },
-    { name: "viewport", content: "width=device-width, initial-scale=1.0" },
   ];
 };
 
