@@ -40,7 +40,26 @@ const breakpointColumns = {
 export const meta: MetaFunction = () => {
   return [
     { title: "NEAR Protocol Ecosystem Map" },
-    { name: "description", content: "Interactive map of the NEAR Protocol ecosystem" },
+    { name: "description", content: "Explore the comprehensive ecosystem map of NEAR Protocol. Discover DeFi, NFTs, AI, Gaming projects and more. Track development status and share custom ecosystem views." },
+    { name: "keywords", content: "NEAR Protocol, Blockchain, DeFi, NFT, Web3, Cryptocurrency, Ecosystem Map, Blockchain Projects" },
+    
+    // Open Graph tags
+    { property: "og:title", content: "NEAR Protocol Ecosystem Map" },
+    { property: "og:description", content: "Explore the comprehensive ecosystem map of NEAR Protocol. Discover DeFi, NFTs, AI, Gaming projects and more." },
+    { property: "og:type", content: "website" },
+    { property: "og:url", content: "https://nearprotocol.eco" },
+    { property: "og:image", content: "https://nearprotocol.eco/icon.webp" },
+    
+    // Twitter Card tags
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: "NEAR Protocol Ecosystem Map" },
+    { name: "twitter:description", content: "Explore the comprehensive ecosystem map of NEAR Protocol. Discover DeFi, NFTs, AI, Gaming projects and more." },
+    { name: "twitter:image", content: "https://nearprotocol.eco/icon.webp" },
+    
+    // Additional SEO tags
+    { name: "robots", content: "index, follow" },
+    { name: "author", content: "NEAR Protocol Ecosystem Map" },
+    { name: "viewport", content: "width=device-width, initial-scale=1.0" },
   ];
 };
 
