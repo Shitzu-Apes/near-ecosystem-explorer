@@ -1,69 +1,72 @@
-# Welcome to your Lovable project
+# NEAR Protocol Ecosystem Map
 
-## Project info
+An interactive visualization of the NEAR Protocol ecosystem, showcasing projects, categories, and their development status.
 
-**URL**: https://lovable.dev/projects/4cffbd25-42a2-4dac-baa7-2574536fee99
+Live at: [nearprotocol.eco](https://nearprotocol.eco)
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- Interactive category-based visualization
+- Project filtering and search
+- Development status indicators (mainnet, building, inactive)
+- Featured categories highlighting
+- Share functionality with preview
+- Responsive masonry layout
+- Project details with social links and token information
 
-**Use Lovable**
+## Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/4cffbd25-42a2-4dac-baa7-2574536fee99) and start prompting.
+- [Remix](https://remix.run/) - React framework
+- [Cloudflare Pages](https://pages.cloudflare.com/) - Hosting and KV storage
+- [TypeScript](https://www.typescriptlang.org/) - Type safety
+- [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [Framer Motion](https://www.framer.com/motion/) - Animations
+- [D3.js](https://d3js.org/) - Layout calculations
 
-Changes made via Lovable will be committed automatically to this repo.
+## Development
 
-**Use your preferred IDE**
+### Prerequisites
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Node.js (v18 or higher)
+- Yarn package manager
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Setup
 
-Follow these steps:
+```bash
+# Clone the repository
+git clone https://github.com/Tarnadas/near-ecosystem-explorer.git
+cd near-ecosystem-explorer
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Install dependencies
+yarn install
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+# Start development server
+yarn dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at `http://localhost:8788`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Build
 
-**Use GitHub Codespaces**
+```bash
+# Production build
+yarn build
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Preview production build
+yarn pages:preview
+```
 
-## What technologies are used for this project?
+## Deployment
 
-This project is built with .
+The project is deployed on Cloudflare Pages.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## API
 
-## How can I deploy this project?
+The project uses the [NEAR Catalog API](https://docs.nearcatalog.xyz/) for project data:
 
-Simply open [Lovable](https://lovable.dev/projects/4cffbd25-42a2-4dac-baa7-2574536fee99) and click on Share -> Publish.
+- Projects list: `https://api.nearcatalog.xyz/projects`
+- Project details: `https://api.nearcatalog.xyz/project?pid={projectId}`
 
-## I want to use a custom domain - is that possible?
+## License
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
