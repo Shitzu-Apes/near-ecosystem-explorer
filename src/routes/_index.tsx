@@ -13,6 +13,7 @@ import ProjectsGrid from '@/components/ProjectsGrid';
 import type { CategorizedProjects, Category } from "@/types/projects";
 import { useCategories } from "@/contexts/CategoriesContext";
 import CustomMapDialog from "@/components/CustomMapDialog";
+import { PlusCircle } from "lucide-react";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -215,6 +216,15 @@ export default function Index() {
               Featured Categories
             </span>
             <CustomMapDialog />
+            <a
+              href="https://dev.near.org/nearcatalog.near/widget/submit"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary hover:bg-primary/80 text-white font-medium transition-colors"
+            >
+              <PlusCircle className="w-5 h-5" />
+              <span>Submit Project</span>
+            </a>
           </div>
         </motion.div>
         
