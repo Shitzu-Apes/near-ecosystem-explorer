@@ -125,10 +125,8 @@ export default function Index() {
           project.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
           project.description?.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
         
-        // When showInactive is false (default): show only active and building projects
-        // When showInactive is true: show all projects including inactive ones
-        const matchesPhase = showInactive || 
-          (project.phase === "mainnet" || project.phase === "still building");
+        // Only filter out if phase is explicitly 'inactive'
+        const matchesPhase = showInactive || project.phase !== 'inactive';
         
         return matchesSearch && matchesPhase;
       });
@@ -197,6 +195,7 @@ export default function Index() {
                   onClick={() => handleCategoryClick(key)}
                   isPriority={category.isPriority}
                   slug={key}
+                  showInactive={showInactive}
                 />
               ))}
             </MasonryLayout>

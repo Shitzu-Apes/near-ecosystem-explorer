@@ -18,7 +18,7 @@ const SharePreview = ({ categories, visibleCategories, theme, showInactive }: Sh
     .map(([key, category]) => {
       // Filter projects based on phase
       const filteredProjects = category.projects.filter(project => 
-        showInactive || (project.phase === "mainnet" || project.phase === "still building")
+        showInactive || project.phase !== 'inactive'
       );
       return [key, { ...category, projects: filteredProjects }] as [string, Category];
     })

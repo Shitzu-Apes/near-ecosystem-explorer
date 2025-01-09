@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { json, LoaderFunction, LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { useLoaderData, Link, useNavigation } from "@remix-run/react";
 import ReactMarkdown from 'react-markdown';
@@ -12,6 +12,7 @@ import {
   PlayCircle,
   ArrowLeft
 } from "lucide-react";
+import { sortProjectsByPhase } from '@/utils/sorting';
 
 const TelegramIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
@@ -43,7 +44,7 @@ interface LoaderData {
     color: string;
     projects: Project[];
     isPriority: boolean;
-    remainingProjects: Project[];
+    remainingProjects?: Project[];
   };
 }
 
@@ -67,8 +68,11 @@ export const loader: LoaderFunction = async ({ params, context }: LoaderFunction
     throw new Response("Category not found", { status: 404 });
   }
 
+  // Sort all projects by phase before slicing
+  const sortedProjects = sortProjectsByPhase(category.projects);
+
   // Only fetch details for first 10 projects
-  const initialProjects = category.projects.slice(0, 10);
+  const initialProjects = sortedProjects.slice(0, 10);
   const projectsWithDetails = await Promise.all(
     initialProjects.map(async (project) => {
       try {
@@ -86,7 +90,7 @@ export const loader: LoaderFunction = async ({ params, context }: LoaderFunction
     category: {
       ...category,
       projects: projectsWithDetails,
-      remainingProjects: category.projects.slice(10),
+      remainingProjects: sortedProjects.slice(10),
     },
   });
 };
@@ -116,7 +120,7 @@ const getPhaseConfig = (phase: string | undefined) => {
   }
 };
 
-export default function CategoryPage() {
+export default function Category() {
   const { category } = useLoaderData<LoaderData>();
   const navigation = useNavigation();
   const [displayedProjects, setDisplayedProjects] = useState(category.projects);

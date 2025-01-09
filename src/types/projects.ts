@@ -35,6 +35,14 @@ export interface ProjectsResponse {
   };
 }
 
+interface Token {
+  symbol: string;
+  name: string;
+  icon?: {
+    small: string;
+  };
+}
+
 export interface ProjectDetails {
   slug: string;
   profile: {
@@ -54,15 +62,6 @@ export interface ProjectDetails {
       github?: string;
       nearsocial?: string;
     };
-    tokens?: {
-      [key: string]: {
-        symbol: string;
-        name: string;
-        icon: {
-          thumb: string;
-          small: string;
-        };
-      };
-    };
+    tokens?: Record<string, Token>;
   };
 }

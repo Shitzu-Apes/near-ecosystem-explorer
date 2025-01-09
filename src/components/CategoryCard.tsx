@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from '@remix-run/react';
 import { Project } from '@/types/projects';
+import { sortProjectsByPhase } from '@/utils/sorting';
 
 interface CategoryCardProps {
   title: string;
@@ -10,16 +11,29 @@ interface CategoryCardProps {
   onClick: () => void;
   isPriority?: boolean;
   slug: string;
+  showInactive: boolean;
 }
 
 const truncateProjectName = (name: string): string => {
   // Split on special characters and take the first part
-  const truncated = name.split(/[^a-zA-Z0-9\s$]/, 1)[0].trim();
-  // Further truncate if still too long
-  return truncated.length > 15 ? truncated.substring(0, 15) + '...' : truncated;
+  return name.split(/[^a-zA-Z0-9\s$]/, 1)[0].trim();
 };
 
-const CategoryCard = ({ title, color, projects, onClick, isPriority = false, slug }: CategoryCardProps) => {
+const CategoryCard = ({ title, color, projects, onClick, isPriority = false, slug, showInactive }: CategoryCardProps) => {
+  // Filter and sort projects
+  const filteredAndSortedProjects = [...projects]
+    .filter(project => showInactive || project.phase !== 'inactive')
+    .sort((a, b) => {
+      const phaseOrder = {
+        "mainnet": 0,
+        "development": 1,
+        "inactive": 3,
+      };
+      const phaseA = phaseOrder[a.phase as keyof typeof phaseOrder] ?? 2; // null/empty phase gets 2
+      const phaseB = phaseOrder[b.phase as keyof typeof phaseOrder] ?? 2;
+      return phaseA - phaseB;
+    });
+  
   return (
     <div className="relative">
       <motion.div
@@ -55,30 +69,29 @@ const CategoryCard = ({ title, color, projects, onClick, isPriority = false, slu
           layout="position" 
           className="grid grid-cols-2 sm:grid-cols-3 gap-2 auto-rows-min flex-grow"
         >
-          {projects.slice(0, 9).map((project, index) => (
-            <motion.div 
-              layout
+          {filteredAndSortedProjects.slice(0, 9).map((project, index) => (
+            <div 
               key={project.name} 
               className="flex flex-col items-center justify-start gap-1"
             >
-              <div className="relative w-8 h-8 sm:w-10 sm:h-10">
+              <div className="w-10 h-10 relative">
                 <img
                   src={project.image}
                   alt={project.name}
                   className="w-full h-full rounded-full object-cover bg-white p-1"
                 />
               </div>
-              <span className="text-xs text-center line-clamp-1 w-full px-1">
+              <span className="text-xs text-center w-full px-1 break-words [word-break:break-word] [overflow-wrap:anywhere]">
                 {truncateProjectName(project.name)}
               </span>
-            </motion.div>
+            </div>
           ))}
-          {projects.length > 9 && (
+          {filteredAndSortedProjects.length > 9 && (
             <motion.div 
               layout
               className="flex items-center justify-center text-xs text-white/70"
             >
-              +{projects.length - 9} more
+              +{filteredAndSortedProjects.length - 9} more
             </motion.div>
           )}
         </motion.div>
