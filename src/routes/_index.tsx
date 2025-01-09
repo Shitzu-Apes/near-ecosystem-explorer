@@ -67,12 +67,13 @@ export default function Index() {
     const initial: Record<string, boolean> = {};
     if (data.categories) {
       Object.entries(data.categories).forEach(([key, category]) => {
-        initial[key] = category.isPriority
+        initial[key] = category.isPriority;
       });
     }
     return initial;
   });
   const [showOnlyFeatured, setShowOnlyFeatured] = useState(true);
+  const [showInactive, setShowInactive] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 150);
@@ -119,13 +120,18 @@ export default function Index() {
   const filteredCategories = sortedCategories
     .filter(([key]) => visibleCategories[key])
     .map(([key, category]) => {
-      if (!debouncedSearchQuery) return [key, category];
-
-      const query = debouncedSearchQuery.toLowerCase();
-      const filteredProjects = category.projects.filter(project => 
-        project.name.toLowerCase().includes(query) ||
-        project.description?.toLowerCase().includes(query)
-      );
+      const filteredProjects = category.projects.filter(project => {
+        const matchesSearch = !debouncedSearchQuery || 
+          project.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+          project.description?.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
+        
+        // When showInactive is false (default): show only active and building projects
+        // When showInactive is true: show all projects including inactive ones
+        const matchesPhase = showInactive || 
+          (project.phase === "mainnet" || project.phase === "still building");
+        
+        return matchesSearch && matchesPhase;
+      });
 
       if (filteredProjects.length === 0) return null;
 
@@ -162,8 +168,10 @@ export default function Index() {
           categories={sortedCategories}
           visibleCategories={visibleCategories}
           showOnlyFeatured={showOnlyFeatured}
+          showInactive={showInactive}
           onToggleCategory={toggleCategory}
           onToggleFeatured={toggleFeatured}
+          onToggleInactive={() => setShowInactive(!showInactive)}
           onShareClick={() => setShareDialogOpen(true)}
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
@@ -175,6 +183,7 @@ export default function Index() {
             onOpenChange={setShareDialogOpen}
             categories={data.categories} 
             visibleCategories={visibleCategories}
+            showInactive={showInactive}
           />
           
           <AnimatePresence>

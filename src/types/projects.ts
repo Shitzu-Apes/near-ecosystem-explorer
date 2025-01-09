@@ -5,6 +5,7 @@ export interface Project {
   description?: string;
   links?: string[];
   details?: ProjectDetails;
+  phase?: "mainnet" | "inactive" | "still building";
 }
 
 export interface Category {
@@ -18,6 +19,7 @@ export type CategorizedProjects = Record<string, Category>;
 
 export interface ProjectsResponse {
   [key: string]: {
+    slug: string;
     profile: {
       name: string;
       image: {
@@ -27,6 +29,8 @@ export interface ProjectsResponse {
       tags: {
         [key: string]: string;
       };
+      published_date: number;
+      phase?: "mainnet" | "inactive" | "still building" | "";
     };
   };
 }

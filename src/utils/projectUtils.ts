@@ -124,6 +124,7 @@ export const categorizeProjects = (
           name: project.profile.name,
           image: project.profile.image.url,
           description: project.profile.tagline,
+          phase: project.profile.phase ? project.profile.phase : undefined,
           links: [], // Add actual links when available
         });
       }

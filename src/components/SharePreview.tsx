@@ -1,19 +1,28 @@
 import React, { useEffect, useRef } from 'react';
-import { CategorizedProjects } from '@/types/projects';
+import { CategorizedProjects, Category } from '@/types/projects';
 import * as d3 from 'd3';
 import { Theme } from '@/types/theme';
 
 interface SharePreviewProps {
   categories: CategorizedProjects;
   visibleCategories: Record<string, boolean>;
-  theme: Theme;
+  theme?: Theme;
+  showInactive: boolean;
 }
 
-const SharePreview = ({ categories, visibleCategories, theme }: SharePreviewProps) => {
+const SharePreview = ({ categories, visibleCategories, theme, showInactive }: SharePreviewProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const visibleCats = Object.entries(categories)
     .filter(([key]) => visibleCategories[key])
+    .map(([key, category]) => {
+      // Filter projects based on phase
+      const filteredProjects = category.projects.filter(project => 
+        showInactive || (project.phase === "mainnet" || project.phase === "still building")
+      );
+      return [key, { ...category, projects: filteredProjects }] as [string, Category];
+    })
+    .filter(([_, category]) => category.projects.length > 0)
     .sort((a, b) => a[1].title.localeCompare(b[1].title));
 
   useEffect(() => {

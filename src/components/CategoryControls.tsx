@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Share2, Star, StarIcon } from 'lucide-react';
+import { Share2, Star, StarIcon, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Category } from '@/types/projects';
 
@@ -9,8 +9,10 @@ interface CategoryControlsProps {
   categories: [string, Category][];
   visibleCategories: Record<string, boolean>;
   showOnlyFeatured: boolean;
+  showInactive: boolean;
   onToggleCategory: (category: string) => void;
   onToggleFeatured: () => void;
+  onToggleInactive: () => void;
   onShareClick: () => void;
   searchValue: string;
   onSearchChange: (value: string) => void;
@@ -20,8 +22,10 @@ const CategoryControls: React.FC<CategoryControlsProps> = ({
   categories,
   visibleCategories,
   showOnlyFeatured,
+  showInactive,
   onToggleCategory,
   onToggleFeatured,
+  onToggleInactive,
   onShareClick,
   searchValue,
   onSearchChange,
@@ -80,6 +84,15 @@ const CategoryControls: React.FC<CategoryControlsProps> = ({
           className={showOnlyFeatured ? 'text-primary' : ''}
         >
           {showOnlyFeatured ? <StarIcon className="w-4 h-4 fill-current" /> : <Star className="w-4 h-4" />}
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={onToggleInactive}
+          className={showInactive ? 'text-amber-500' : ''}
+          title="Show inactive projects"
+        >
+          <AlertCircle className="w-4 h-4" />
         </Button>
         <Button
           variant="outline"
