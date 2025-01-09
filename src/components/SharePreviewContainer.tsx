@@ -10,6 +10,7 @@ interface SharePreviewContainerProps {
   categories: CategorizedProjects;
   visibleCategories: Record<string, boolean>;
   theme: Theme;
+  showInactive: boolean;
 }
 
 const SharePreviewContainer = ({
@@ -19,6 +20,7 @@ const SharePreviewContainer = ({
   categories,
   visibleCategories,
   theme,
+  showInactive,
 }: SharePreviewContainerProps) => {
   return (
     <div 
@@ -42,6 +44,7 @@ const SharePreviewContainer = ({
             categories={categories}
             visibleCategories={visibleCategories}
             theme={theme}
+            showInactive={showInactive}
           />
         </div>
       </div>

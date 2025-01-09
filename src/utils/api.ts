@@ -43,6 +43,10 @@ export async function fetchProjects(context?: {
       throw new Error("Failed to fetch projects");
     }
     const data = await response.json();
+    console.log(
+      "API Response sample project:",
+      Object.values(data)[0]?.profile
+    );
 
     // Cache the result if on server side
     if (kv) {

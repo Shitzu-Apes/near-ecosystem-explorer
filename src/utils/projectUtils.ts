@@ -104,6 +104,12 @@ export const categorizeProjects = (
 
   // Distribute projects across categories
   sortedProjects.forEach(([projectId, project]) => {
+    console.log(
+      "Processing project:",
+      project.profile.name,
+      "Phase:",
+      project.profile.phase
+    );
     Object.entries(project.profile.tags).forEach(([tag, value]) => {
       if (!categories[tag]) {
         categories[tag] = {

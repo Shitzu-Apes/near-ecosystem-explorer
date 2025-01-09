@@ -73,6 +73,7 @@ export const loader: LoaderFunction = async ({ params, context }: LoaderFunction
     initialProjects.map(async (project) => {
       try {
         const details = await fetchProjectDetails(project.id, { PROJECTS_KV });
+        console.log('Project phase:', project.name, project.phase);
         return { ...project, details };
       } catch (error) {
         console.error('Error fetching project details:', error);
@@ -88,6 +89,31 @@ export const loader: LoaderFunction = async ({ params, context }: LoaderFunction
       remainingProjects: category.projects.slice(10),
     },
   });
+};
+
+const getPhaseConfig = (phase: string | undefined) => {
+  switch (phase) {
+    case 'mainnet':
+      return {
+        label: 'Mainnet',
+        className: 'bg-emerald-500/20 text-emerald-400'
+      };
+    case 'still building':
+      return {
+        label: 'Building',
+        className: 'bg-amber-500/20 text-amber-400'
+      };
+    case 'inactive':
+      return {
+        label: 'Inactive',
+        className: 'bg-red-500/20 text-red-400'
+      };
+    default:
+      return {
+        label: 'Unknown',
+        className: 'bg-gray-500/20 text-gray-400'
+      };
+  }
 };
 
 export default function CategoryPage() {
@@ -206,15 +232,26 @@ export default function CategoryPage() {
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-4 mb-3">
-                  <h2 className="text-2xl font-semibold">
-                    {project.name}
-                  </h2>
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h2 className="text-2xl font-semibold">
+                      {project.name}
+                    </h2>
+                    {project.phase && (
+                      <div className={`flex items-center gap-2 rounded-full px-3 py-1 ${getPhaseConfig(project.phase).className}`}>
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-current"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-current"></span>
+                        </span>
+                        <span className="text-sm font-medium">{getPhaseConfig(project.phase).label}</span>
+                      </div>
+                    )}
+                  </div>
                   {project.details?.profile?.tokens && 
                     Object.entries(project.details.profile.tokens).some(([_, token]) => 
                       token.symbol.trim() && token.name.trim() && token.icon?.small
                     ) && (
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {Object.entries(project.details.profile.tokens)
                         .filter(([_, token]) => token.symbol.trim() && token.name.trim() && token.icon?.small)
                         .map(([symbol, token]) => {
