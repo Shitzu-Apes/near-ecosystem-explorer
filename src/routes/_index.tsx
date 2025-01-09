@@ -13,7 +13,7 @@ import ProjectsGrid from '@/components/ProjectsGrid';
 import type { CategorizedProjects, Category } from "@/types/projects";
 import { useCategories } from "@/contexts/CategoriesContext";
 import CustomMapDialog from "@/components/CustomMapDialog";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Github } from "lucide-react";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -275,7 +275,7 @@ export default function Index() {
           )}
         </div>
 
-        <div className="mt-12 text-center text-white/60 pb-4">
+        <div className="mt-12 text-center text-white/60 pb-4 flex items-center justify-center gap-6">
           <a 
             href="https://shitzuapes.xyz" 
             target="_blank" 
@@ -283,6 +283,16 @@ export default function Index() {
             className="inline-flex items-center gap-1.5 hover:text-white transition-colors"
           >
             Built with <span className="text-red-400">❤️</span> by Shitzu
+          </a>
+          <div className="w-1 h-1 rounded-full bg-white/20" />
+          <a 
+            href="https://github.com/Shitzu-Apes/near-ecosystem-explorer" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 hover:text-white transition-colors"
+          >
+            <Github className="w-5 h-5" />
+            <span>Source</span>
           </a>
         </div>
       </div>
