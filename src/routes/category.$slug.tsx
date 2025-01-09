@@ -12,7 +12,7 @@ import {
   PlayCircle,
   ArrowLeft
 } from "lucide-react";
-import { sortProjectsByPhase } from '@/utils/sorting';
+import { sortProjectsByScoreAndPhase } from '@/utils/sorting';
 
 const TelegramIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
@@ -69,7 +69,7 @@ export const loader: LoaderFunction = async ({ params, context }: LoaderFunction
   }
 
   // Sort all projects by phase before slicing
-  const sortedProjects = sortProjectsByPhase(category.projects);
+  const sortedProjects = sortProjectsByScoreAndPhase(category.projects);
 
   // Only fetch details for first 10 projects
   const initialProjects = sortedProjects.slice(0, 10);

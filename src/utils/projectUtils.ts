@@ -131,6 +131,10 @@ export const categorizeProjects = (
           image: project.profile.image.url,
           description: project.profile.tagline,
           phase: project.profile.phase ? project.profile.phase : undefined,
+          lnc_score:
+            project.profile.lnc && typeof project.profile.lnc !== "string"
+              ? project.profile.lnc.score
+              : undefined,
           links: [], // Add actual links when available
         });
       }

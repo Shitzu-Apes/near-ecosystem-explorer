@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { CategorizedProjects, Category } from '@/types/projects';
 import * as d3 from 'd3';
 import { Theme } from '@/types/theme';
+import { sortProjectsByScoreAndPhase } from '@/utils/sorting';
 
 interface SharePreviewProps {
   categories: CategorizedProjects;
@@ -16,9 +17,9 @@ const SharePreview = ({ categories, visibleCategories, theme, showInactive }: Sh
   const visibleCats = Object.entries(categories)
     .filter(([key]) => visibleCategories[key])
     .map(([key, category]) => {
-      // Filter projects based on phase
-      const filteredProjects = category.projects.filter(project => 
-        showInactive || project.phase !== 'inactive'
+      // Filter and sort projects
+      const filteredProjects = sortProjectsByScoreAndPhase(
+        category.projects.filter(project => showInactive || project.phase !== 'inactive')
       );
       return [key, { ...category, projects: filteredProjects }] as [string, Category];
     })

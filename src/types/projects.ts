@@ -6,6 +6,7 @@ export interface Project {
   links?: string[];
   details?: ProjectDetails;
   phase?: "mainnet" | "inactive" | "still building";
+  lnc_score?: number;
 }
 
 export interface Category {
@@ -31,6 +32,12 @@ export interface ProjectsResponse {
       };
       published_date: number;
       phase?: "mainnet" | "inactive" | "still building" | "";
+      lnc?:
+        | {
+            score: number;
+            slug: string;
+          }
+        | "";
     };
   };
 }

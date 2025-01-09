@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from '@remix-run/react';
 import { Project } from '@/types/projects';
-import { sortProjectsByPhase } from '@/utils/sorting';
+import { sortProjectsByScoreAndPhase } from '@/utils/sorting';
 
 interface CategoryCardProps {
   title: string;
@@ -21,18 +21,9 @@ const truncateProjectName = (name: string): string => {
 
 const CategoryCard = ({ title, color, projects, onClick, isPriority = false, slug, showInactive }: CategoryCardProps) => {
   // Filter and sort projects
-  const filteredAndSortedProjects = [...projects]
-    .filter(project => showInactive || project.phase !== 'inactive')
-    .sort((a, b) => {
-      const phaseOrder = {
-        "mainnet": 0,
-        "development": 1,
-        "inactive": 3,
-      };
-      const phaseA = phaseOrder[a.phase as keyof typeof phaseOrder] ?? 2; // null/empty phase gets 2
-      const phaseB = phaseOrder[b.phase as keyof typeof phaseOrder] ?? 2;
-      return phaseA - phaseB;
-    });
+  const filteredAndSortedProjects = sortProjectsByScoreAndPhase(
+    projects.filter(project => showInactive || project.phase !== 'inactive')
+  );
   
   return (
     <div className="relative">
