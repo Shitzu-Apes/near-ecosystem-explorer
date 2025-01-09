@@ -12,6 +12,7 @@ import MasonryLayout from '@/components/MasonryLayout';
 import ProjectsGrid from '@/components/ProjectsGrid';
 import type { CategorizedProjects, Category } from "@/types/projects";
 import { useCategories } from "@/contexts/CategoriesContext";
+import CustomMapDialog from "@/components/CustomMapDialog";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -213,6 +214,7 @@ export default function Index() {
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10">
               Featured Categories
             </span>
+            <CustomMapDialog />
           </div>
         </motion.div>
         
