@@ -10,9 +10,11 @@ import {
   Github, 
   Globe,
   PlayCircle,
-  ArrowLeft
+  ArrowLeft,
+  ChevronDown
 } from "lucide-react";
 import { sortProjectsByScoreAndPhase } from '@/utils/sorting';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const TelegramIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
@@ -127,13 +129,25 @@ export default function Category() {
   const [remainingProjects, setRemainingProjects] = useState(category.remainingProjects || []);
   const [hasMore, setHasMore] = useState(category.remainingProjects?.length > 0);
   const [isLoading, setIsLoading] = useState(false);
+  const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Character threshold for showing the "Learn More" button
+  const CONTENT_THRESHOLD = 500;
+
+  const toggleDescription = (projectId: string) => {
+    setExpandedDescriptions(prev => ({
+      ...prev,
+      [projectId]: !prev[projectId]
+    }));
+  };
 
   // Reset state when category changes
   useEffect(() => {
     setDisplayedProjects(category.projects);
     setRemainingProjects(category.remainingProjects || []);
     setHasMore(category.remainingProjects?.length > 0);
+    setExpandedDescriptions({});
   }, [category.title]);
 
   const loadMore = async () => {
@@ -200,7 +214,7 @@ export default function Category() {
   }
 
   return (
-    <div className="min-h-screen w-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
       <div className="max-w-[1200px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         <Link 
           to="/"
@@ -369,9 +383,19 @@ export default function Category() {
 
                 {project.details?.profile?.description && (
                   <div className="prose prose-invert max-w-none overflow-hidden break-words">
+                    <motion.div
+                      initial={false}
+                      animate={{ 
+                        height: !expandedDescriptions[project.id] && project.details.profile.description.length > CONTENT_THRESHOLD
+                          ? "8em" 
+                          : "auto"
+                      }}
+                      transition={{ duration: 0.4, ease: "easeInOut" }}
+                      className="relative overflow-hidden"
+                    >
                     <ReactMarkdown 
                       remarkPlugins={[remarkGfm]}
-                      className="text-white/80 break-words [word-break:break-word] [overflow-wrap:anywhere]"
+                        className="text-white/80 break-words [word-break:break-word] [overflow-wrap:anywhere]"
                       components={{
                         p: ({node, ...props}) => <p className="mb-4 whitespace-pre-line break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
                         a: ({node, ...props}) => (
@@ -409,6 +433,28 @@ export default function Category() {
                         .replace(/\r\n/g, '\n')
                       }
                     </ReactMarkdown>
+                      {!expandedDescriptions[project.id] && project.details.profile.description.length > CONTENT_THRESHOLD && (
+                        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-800/90 to-transparent" />
+                      )}
+                    </motion.div>
+                    {project.details.profile.description.length > CONTENT_THRESHOLD && (
+                      <motion.button
+                        onClick={() => toggleDescription(project.id)}
+                        className="mt-2 text-primary hover:text-primary/80 transition-colors text-sm font-medium flex items-center gap-2"
+                        initial={false}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {expandedDescriptions[project.id] ? 'Show Less' : 'Learn More'}
+                        <motion.div
+                          initial={false}
+                          animate={{ rotate: expandedDescriptions[project.id] ? 180 : 0 }}
+                          transition={{ duration: 0.3, ease: "easeInOut" }}
+                        >
+                          <ChevronDown className="w-4 h-4" />
+                        </motion.div>
+                      </motion.button>
+                    )}
                   </div>
                 )}
               </div>
