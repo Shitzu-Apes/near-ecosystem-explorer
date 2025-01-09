@@ -5,9 +5,11 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/cloudflare";
 import { Toaster } from "@/components/ui/toaster";
+import { CategoriesProvider } from "@/contexts/CategoriesContext";
 import stylesheet from "./index.css?url";
 
 export const links: LinksFunction = () => [
@@ -15,6 +17,8 @@ export const links: LinksFunction = () => [
 ];
 
 export default function App() {
+  const location = useLocation();
+
   return (
     <html lang="en">
       <head>
@@ -24,8 +28,10 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Outlet />
-        <Toaster />
+        <CategoriesProvider key="categories-provider">
+          <Outlet />
+          <Toaster />
+        </CategoriesProvider>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

@@ -1,6 +1,6 @@
 import type { MetaFunction, LoaderFunction, LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
-import { useLoaderData, useNavigation } from "@remix-run/react";
+import { useLoaderData, useNavigation, useSearchParams } from "@remix-run/react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { categorizeProjects } from "@/utils/projectUtils";
@@ -11,6 +11,7 @@ import CategoryControls from '@/components/CategoryControls';
 import MasonryLayout from '@/components/MasonryLayout';
 import ProjectsGrid from '@/components/ProjectsGrid';
 import type { CategorizedProjects, Category } from "@/types/projects";
+import { useCategories } from "@/contexts/CategoriesContext";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -47,7 +48,7 @@ interface LoaderData {
   categories: CategorizedProjects;
 }
 
-export const loader: LoaderFunction = async ({ context }: LoaderFunctionArgs) => {
+export const loader: LoaderFunction = async ({ context, request }: LoaderFunctionArgs) => {
   const { PROJECTS_KV } = context as { PROJECTS_KV: KVNamespace };
   try {
     const projects = await fetchProjects({ PROJECTS_KV });
@@ -62,16 +63,8 @@ export const loader: LoaderFunction = async ({ context }: LoaderFunctionArgs) =>
 export default function Index() {
   const data = useLoaderData<LoaderData>();
   const navigation = useNavigation();
+  const { visibleCategories, setVisibleCategories, initializeVisibleCategories } = useCategories();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [visibleCategories, setVisibleCategories] = useState<Record<string, boolean>>(() => {
-    const initial: Record<string, boolean> = {};
-    if (data.categories) {
-      Object.entries(data.categories).forEach(([key, category]) => {
-        initial[key] = category.isPriority;
-      });
-    }
-    return initial;
-  });
   const [showOnlyFeatured, setShowOnlyFeatured] = useState(true);
   const [showInactive, setShowInactive] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
@@ -79,15 +72,22 @@ export default function Index() {
   const debouncedSearchQuery = useDebounce(searchQuery, 150);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // Initialize visible categories on first load
+  useEffect(() => {
+    if (data.categories) {
+      initializeVisibleCategories(data.categories);
+    }
+  }, [data.categories]);
+
   const handleCategoryClick = (categoryKey: string) => {
     setSelectedCategory(categoryKey);
   };
 
   const toggleCategory = (category: string) => {
-    setVisibleCategories(prev => ({
-      ...prev,
-      [category]: !prev[category]
-    }));
+    setVisibleCategories({
+      ...visibleCategories,
+      [category]: !visibleCategories[category]
+    });
   };
 
   const toggleFeatured = () => {
