@@ -123,10 +123,11 @@ export default function Index() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-8">
       <div className="max-w-[1800px] mx-auto">
         <motion.h1 
-          className="text-4xl font-bold mb-8 text-center"
+          className="text-4xl font-bold mb-8 text-center flex items-center justify-center gap-4"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
+          <img src="/icon.webp" alt="NEAR Protocol" className="w-12 h-12 rounded-lg" />
           NEAR Protocol Ecosystem Map
         </motion.h1>
         

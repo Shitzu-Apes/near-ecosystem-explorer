@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 import { CategorizedProjects } from '@/types/projects';
 import ShareDialogControls from './ShareDialogControls';
 import SharePreviewContainer from './SharePreviewContainer';

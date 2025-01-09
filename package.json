@@ -53,7 +53,7 @@
     "embla-carousel-react": "^8.3.0",
     "fabric": "^6.5.4",
     "framer-motion": "^11.16.0",
-    "html2canvas": "^1.4.1",
+    "html2canvas-pro": "^1.5.8",
     "input-otp": "^1.2.4",
     "isbot": "^4.4.0",
     "lucide-react": "^0.462.0",

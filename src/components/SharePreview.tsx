@@ -43,6 +43,17 @@ const SharePreview = ({ categories, visibleCategories, theme }: SharePreviewProp
     const maxProjects = Math.max(...visibleCats.map(([_, cat]) => cat.projects.length));
     const avgProjects = totalProjects / visibleCats.length;
 
+    // Calculate dynamic maxIconSize based on total number of projects
+    const maxIconSize = Math.max(
+      96,  // increased minimum max size
+      Math.min(
+        200,  // increased absolute maximum
+        Math.floor(320 / Math.sqrt(totalProjects * 0.05))  // increased base value for scaling
+      )
+    );
+    console.log('maxIconSize', maxIconSize);
+    console.log('Math.floor(320 / Math.sqrt(totalProjects * 0.1)) ', Math.floor(640 / Math.sqrt(totalProjects * 0.1)));
+
     interface TreemapData {
       key: string;
       category: CategorizedProjects[keyof CategorizedProjects];
@@ -145,43 +156,62 @@ const SharePreview = ({ categories, visibleCategories, theme }: SharePreviewProp
       
       // Calculate optimal icon size based on available space
       const padding = 16;
-      const headerHeight = 44;
-      const minIconSize = 56;
-      const maxIconSize = 112;
+      const headerHeight = 48;
+      const minIconSize = 48;
+      // maxIconSize is now defined outside based on total projects
       
       const availableWidth = cardWidth - (padding * 2);
       const availableHeight = cardHeight - headerHeight - (padding * 2);
       
       // Calculate optimal grid layout based on card size and project count
       const numProjects = category.projects.length;
-      
-      // Find optimal number of columns and rows
       const aspectRatio = availableWidth / availableHeight;
-      let optimalColumns = Math.round(Math.sqrt(numProjects * aspectRatio));
-      let optimalRows = Math.ceil(numProjects / optimalColumns);
       
-      // Adjust if rows are too many compared to columns
-      if (optimalRows > optimalColumns * 1.5) {
-        optimalColumns = Math.ceil(Math.sqrt(numProjects * 1.5));
-        optimalRows = Math.ceil(numProjects / optimalColumns);
-      }
+      // Calculate optimal columns based on aspect ratio
+      const baseColumns = Math.sqrt(numProjects * aspectRatio);
+      const optimalColumns = aspectRatio < 1 
+        ? Math.max(2, Math.floor(baseColumns))
+        : Math.ceil(baseColumns);
+      const optimalRows = Math.ceil(numProjects / optimalColumns);
 
       // Calculate available space per item including gaps
-      const itemWidth = Math.floor(availableWidth / optimalColumns);
-      const itemHeight = Math.floor(availableHeight / optimalRows);
+      const gapSize = 12;
+      const textHeight = 32;
       
-      // Calculate icon size to fit within item space
-      const gapSize = 16;
-      const iconSize = Math.min(
-        itemWidth - gapSize,
-        itemHeight - gapSize - 20 // 20px for text
+      // Calculate total space used by gaps
+      const totalGapWidth = gapSize * (optimalColumns - 1);
+      const totalGapHeight = gapSize * (optimalRows - 1);
+      const textTotalHeight = textHeight * optimalRows;
+      
+      // Calculate base icon size
+      const baseIconSize = Math.min(
+        (availableWidth - totalGapWidth) / optimalColumns,
+        (availableHeight - textTotalHeight - totalGapHeight) / optimalRows
+      );
+
+      // Calculate how much empty space would be left with base size
+      const gridWidth = (baseIconSize * optimalColumns) + totalGapWidth;
+      const gridHeight = (baseIconSize * optimalRows) + totalGapHeight + textTotalHeight;
+      const emptyWidth = availableWidth - gridWidth;
+      const emptyHeight = availableHeight - gridHeight;
+      
+      // Calculate scale factor based on empty space ratio
+      const emptySpaceRatio = Math.min(
+        emptyWidth / availableWidth,
+        emptyHeight / availableHeight
       );
       
-      // Clamp icon size
-      const finalIconSize = Math.max(minIconSize, Math.min(maxIconSize, iconSize));
+      // Scale up more if there's lots of empty space, but maintain maximum bounds
+      const scaleFactor = Math.min(1.3, 1 + (emptySpaceRatio * 0.5));
+      
+      // Clamp icon size with scale factor
+      const finalIconSize = Math.max(
+        minIconSize, 
+        Math.min(maxIconSize, Math.floor(baseIconSize * scaleFactor))
+      );
 
-      // Dynamic font size calculation
-      const fontSize = Math.max(10, Math.min(14, Math.floor(finalIconSize / 5)));
+      // Dynamic font size calculation based on available space and icon size
+      const fontSize = Math.max(10, Math.min(13, Math.floor(finalIconSize / 4.5)));
       
       const sanitizeName = (name: string) => {
         const parts = name.split(/[^\w\s$]+/);
@@ -189,18 +219,18 @@ const SharePreview = ({ categories, visibleCategories, theme }: SharePreviewProp
       };
 
       card.html(`
-        <div class="h-full rounded-xl p-4 flex flex-col overflow-visible" style="background-color: ${theme.cardBackground}; border: 1px solid ${theme.cardBorder}">
-          <h2 class="text-3xl font-bold mb-2 leading-tight overflow-visible tracking-tight" style="color: ${theme.categoryText}">
+        <div class="h-full rounded-xl p-4 flex flex-col" style="background-color: ${theme.cardBackground}; border: 1px solid ${theme.cardBorder}">
+          <h2 class="text-2xl font-bold mb-2" style="color: ${theme.categoryText}">
             ${category.title}
           </h2>
           <div class="flex-1">
             <div class="grid w-full h-full" style="
               grid-template-columns: repeat(${optimalColumns}, 1fr);
-              grid-template-rows: repeat(${optimalRows}, 1fr);
               gap: ${gapSize}px;
+              align-items: start;
             ">
               ${category.projects.slice(0, optimalColumns * optimalRows).map(project => `
-                <div class="flex flex-col items-center justify-center">
+                <div class="flex flex-col items-center gap-2">
                   <div class="rounded-full bg-gray-800 overflow-hidden flex items-center justify-center"
                        style="width: ${finalIconSize}px; height: ${finalIconSize}px">
                     <img
@@ -210,9 +240,8 @@ const SharePreview = ({ categories, visibleCategories, theme }: SharePreviewProp
                       onerror="this.src='/placeholder.svg'"
                     />
                   </div>
-                  <span class="text-center w-full px-1 mt-1" 
-                        title="${project.name}"
-                        style="color: ${theme.projectText}; font-size: ${fontSize}px">
+                  <span class="text-center w-full px-1 whitespace-normal" 
+                        style="color: ${theme.projectText}; font-size: ${fontSize}px; max-width: ${finalIconSize + 24}px; line-height: 1.2;">
                     ${sanitizeName(project.name)}
                   </span>
                 </div>
@@ -228,16 +257,18 @@ const SharePreview = ({ categories, visibleCategories, theme }: SharePreviewProp
     <div 
       className="w-[1920px] h-[1080px] text-left relative overflow-visible" 
       ref={containerRef}
+      data-preview="true"
       style={{ backgroundColor: theme.background }}
     >
       <div className="absolute inset-0" style={{ backgroundColor: theme.background }}>
-        <div className="h-[120px] flex items-center px-[52px] mb-8">
-          <h1 className="text-6xl font-bold" style={{ color: theme.titleText }}>
+        <div className="h-[7.5rem] flex items-center px-[3.25rem]">
+          <img src="/icon.webp" alt="NEAR Protocol" className="w-[4rem] h-[4rem] rounded-lg mr-[1.5rem]" />
+          <h1 className="text-[3.75rem] font-bold" style={{ color: theme.titleText }}>
             NEAR Protocol Ecosystem Map - nearprotocol.eco
           </h1>
         </div>
         
-        <div className="grid-container absolute inset-0 pt-[140px] overflow-visible" >
+        <div className="grid-container absolute inset-0 pt-[8.75rem] overflow-visible" >
           {/* D3 will inject content here */}
         </div>
       </div>
