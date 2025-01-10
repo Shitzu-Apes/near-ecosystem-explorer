@@ -76,7 +76,7 @@ interface Token {
 
 export interface ProjectDetailsResponse {
   slug: string;
-  profile: {
+  profile?: {
     name: string;
     tagline: string;
     description: string;

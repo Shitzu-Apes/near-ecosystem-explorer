@@ -107,7 +107,7 @@ async function fetchProjectDetails(
       `https://api.nearcatalog.xyz/project?pid=${encodeURIComponent(projectId)}`
     );
     if (!response.ok) return null;
-    const data = await response.json();
+    const data = await response.json<ProjectDetailsResponse>();
 
     // Cache the result if on server side
     if (kv) {
@@ -117,7 +117,7 @@ async function fetchProjectDetails(
       });
     }
 
-    return data as ProjectDetailsResponse;
+    return data;
   } catch (error) {
     console.error("Error fetching project details:", error);
     return null;
@@ -144,7 +144,11 @@ async function chunkedFetchProjectDetails(
   for (let i = 0; i < projectIds.length; i += chunkSize) {
     const chunk = projectIds.slice(i, i + chunkSize);
     const chunkResults = await fetchChunk(chunk);
-    results.push(...chunkResults);
+    results.push(
+      ...chunkResults.filter(
+        (project) => project != null && project.profile != null
+      )
+    );
   }
 
   return results;
