@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 import { Theme } from '@/types/theme';
 import { sortProjectsByScoreAndPhase } from '@/utils/sorting';
 import { categoryRanks } from '@/utils/projectUtils';
+import { sanitizeName } from '@/lib/utils';
 
 interface SharePreviewProps {
   categories: CategorizedProjects;
@@ -254,11 +255,6 @@ const SharePreview = ({ categories, visibleCategories, theme, showInactive, show
 
       // Dynamic font size calculation based on available space and icon size
       const fontSize = Math.max(10, Math.min(13, Math.floor(finalIconSize / 4.5)));
-      
-      const sanitizeName = (name: string) => {
-        const parts = name.split(/[^\w\s.$]+/);
-        return parts[0].trim();
-      };
 
       card.html(`
         <div class="h-full rounded-xl p-4 flex flex-col" style="background-color: ${theme.cardBackground}; border: 1px solid ${theme.cardBorder}">

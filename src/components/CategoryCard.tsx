@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from '@remix-run/react';
 import { Project } from '@/types/projects';
 import { sortProjectsByScoreAndPhase } from '@/utils/sorting';
+import { sanitizeName } from '@/lib/utils';
 
 interface CategoryCardProps {
   title: string;
@@ -13,11 +14,6 @@ interface CategoryCardProps {
   slug: string;
   showInactive: boolean;
 }
-
-const truncateProjectName = (name: string): string => {
-  // Split on special characters and take the first part
-  return name.split(/[^a-zA-Z0-9\s$]/, 1)[0].trim();
-};
 
 const CategoryCard = ({ title, color, projects, onClick, isPriority = false, slug, showInactive }: CategoryCardProps) => {
   // Filter and sort projects
@@ -60,7 +56,7 @@ const CategoryCard = ({ title, color, projects, onClick, isPriority = false, slu
           layout="position" 
           className="grid grid-cols-2 sm:grid-cols-3 gap-2 auto-rows-min flex-grow"
         >
-          {filteredAndSortedProjects.slice(0, 9).map((project, index) => (
+          {filteredAndSortedProjects.slice(0, 9).map((project) => (
             <div 
               key={project.name} 
               className="flex flex-col items-center justify-start gap-1"
@@ -72,8 +68,8 @@ const CategoryCard = ({ title, color, projects, onClick, isPriority = false, slu
                   className="w-full h-full rounded-full object-cover bg-white p-1"
                 />
               </div>
-              <span className="text-xs text-center w-full px-1 break-words [word-break:break-word] [overflow-wrap:anywhere]">
-                {truncateProjectName(project.name)}
+              <span className="text-xs text-center w-full px-1 break-words [word-break:break-word]">
+                {sanitizeName(project.name)}
               </span>
             </div>
           ))}
