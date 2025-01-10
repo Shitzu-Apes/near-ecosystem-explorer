@@ -291,7 +291,7 @@ export default function Category() {
                     ) && (
                     <div className="flex flex-wrap gap-2 shrink-0">
                       {Object.entries(project.tokens)
-                        .filter(([_, token]) => token.platform.coingecko && token.platform.coingecko.match(/^[a-zA-Z0-9]+$/) && token.symbol.trim() && token.name.trim())
+                        .filter(([_, token]) => token.platform.coingecko && token.platform.coingecko.match(/^[a-zA-Z0-9-]+$/) && token.symbol.trim() && token.name.trim())
                         .map(([symbol, token]) => {
                           const coingeckoUrl = `https://www.coingecko.com/en/coins/${token.platform.coingecko}`;
                           const TokenContent = () => (
