@@ -92,6 +92,7 @@ export default function Index() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showOnlyFeatured, setShowOnlyFeatured] = useState(true);
   const [showInactive, setShowInactive] = useState(false);
+  const [showOnlyTokens, setShowOnlyTokens] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 150);
@@ -152,8 +153,14 @@ export default function Index() {
         
         // Only filter out if phase is explicitly 'inactive'
         const matchesPhase = showInactive || project.phase !== 'inactive';
+
+        // Filter for projects with tokens
+        const hasToken = !showOnlyTokens || (project.tokens && 
+          Object.entries(project.tokens).some(([_, token]) => 
+            token.symbol.trim() && token.name.trim() && token.icon?.small
+          ));
         
-        return matchesSearch && matchesPhase;
+        return matchesSearch && matchesPhase && hasToken;
       });
 
       if (filteredProjects.length === 0) return null;
@@ -233,9 +240,11 @@ export default function Index() {
           visibleCategories={visibleCategories}
           showOnlyFeatured={showOnlyFeatured}
           showInactive={showInactive}
+          showOnlyTokens={showOnlyTokens}
           onToggleCategory={toggleCategory}
           onToggleFeatured={toggleFeatured}
           onToggleInactive={() => setShowInactive(!showInactive)}
+          onToggleTokens={() => setShowOnlyTokens(!showOnlyTokens)}
           onShareClick={() => setShareDialogOpen(true)}
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
@@ -248,6 +257,7 @@ export default function Index() {
             categories={data.categories} 
             visibleCategories={visibleCategories}
             showInactive={showInactive}
+            showOnlyTokens={showOnlyTokens}
           />
           
           <AnimatePresence>

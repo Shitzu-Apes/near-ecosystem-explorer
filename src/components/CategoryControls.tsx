@@ -1,18 +1,22 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Share2, Star, StarIcon, AlertCircle } from 'lucide-react';
+import { Share2, Star, StarIcon, AlertCircle, Coins } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Category } from '@/types/projects';
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface CategoryControlsProps {
   categories: [string, Category][];
   visibleCategories: Record<string, boolean>;
   showOnlyFeatured: boolean;
   showInactive: boolean;
+  showOnlyTokens: boolean;
   onToggleCategory: (category: string) => void;
   onToggleFeatured: () => void;
   onToggleInactive: () => void;
+  onToggleTokens: () => void;
   onShareClick: () => void;
   searchValue: string;
   onSearchChange: (value: string) => void;
@@ -23,9 +27,11 @@ const CategoryControls: React.FC<CategoryControlsProps> = ({
   visibleCategories,
   showOnlyFeatured,
   showInactive,
+  showOnlyTokens,
   onToggleCategory,
   onToggleFeatured,
   onToggleInactive,
+  onToggleTokens,
   onShareClick,
   searchValue,
   onSearchChange,
@@ -94,6 +100,15 @@ const CategoryControls: React.FC<CategoryControlsProps> = ({
             title="Show inactive projects"
           >
             <AlertCircle className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={onToggleTokens}
+            className={showOnlyTokens ? 'text-primary' : ''}
+            title="Show projects with tokens"
+          >
+            <Coins className="w-4 h-4" />
           </Button>
           <Button
             variant="outline"

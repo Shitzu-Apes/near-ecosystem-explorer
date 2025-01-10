@@ -2,11 +2,24 @@ export interface Project {
   id: string;
   name: string;
   image: string;
+  tagline: string;
   description?: string;
-  links?: string[];
-  details?: ProjectDetails;
+  tags: {
+    [key: string]: string;
+  };
+  dapp?: string;
+  linktree?: {
+    website?: string;
+    twitter?: string;
+    medium?: string;
+    telegram?: string;
+    discord?: string;
+    github?: string;
+    nearsocial?: string;
+  };
   phase?: "mainnet" | "inactive" | "still building";
   lnc_score?: number;
+  tokens?: Record<string, Token>;
 }
 
 export interface Category {
@@ -17,6 +30,10 @@ export interface Category {
 }
 
 export type CategorizedProjects = Record<string, Category>;
+
+export interface Projects {
+  [key: string]: Project;
+}
 
 export interface ProjectsResponse {
   [key: string]: {
@@ -31,13 +48,13 @@ export interface ProjectsResponse {
         [key: string]: string;
       };
       published_date: number;
-      phase?: "mainnet" | "inactive" | "still building" | "";
       lnc?:
         | {
             score: number;
             slug: string;
           }
         | "";
+      phase?: "mainnet" | "inactive" | "still building" | "";
     };
   };
 }
@@ -48,9 +65,16 @@ interface Token {
   icon?: {
     small: string;
   };
+  address?: {
+    near?: string;
+    aurora?: string;
+  };
+  platform?: {
+    coingecko?: string;
+  };
 }
 
-export interface ProjectDetails {
+export interface ProjectDetailsResponse {
   slug: string;
   profile: {
     name: string;
@@ -58,6 +82,9 @@ export interface ProjectDetails {
     description: string;
     image: {
       url: string;
+    };
+    tags: {
+      [key: string]: string;
     };
     dapp?: string;
     linktree?: {
@@ -69,6 +96,13 @@ export interface ProjectDetails {
       github?: string;
       nearsocial?: string;
     };
+    lnc?:
+      | {
+          score: number;
+          slug: string;
+        }
+      | "";
+    phase?: "mainnet" | "inactive" | "still building" | "";
     tokens?: Record<string, Token>;
   };
 }

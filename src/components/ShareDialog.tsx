@@ -13,9 +13,10 @@ interface ShareDialogProps {
   categories: CategorizedProjects;
   visibleCategories: Record<string, boolean>;
   showInactive: boolean;
+  showOnlyTokens: boolean;
 }
 
-const ShareDialog = ({ open, onOpenChange, categories, visibleCategories, showInactive }: ShareDialogProps) => {
+const ShareDialog = ({ open, onOpenChange, categories, visibleCategories, showInactive, showOnlyTokens }: ShareDialogProps) => {
   const { toast } = useToast();
   const [zoom, setZoom] = useState(1);
   const [selectedTheme, setSelectedTheme] = useState(THEMES[0]);
@@ -188,6 +189,7 @@ const ShareDialog = ({ open, onOpenChange, categories, visibleCategories, showIn
             visibleCategories={visibleCategories}
             theme={selectedTheme}
             showInactive={showInactive}
+            showOnlyTokens={showOnlyTokens}
           />
           
           <div className="flex items-center gap-4 mb-4">

@@ -1,11 +1,10 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { json, LoaderFunction, LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
 import { useLoaderData, Link, useNavigation } from "@remix-run/react";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { getCategories } from "@/utils/projectUtils";
-import { fetchProjectDetails } from "@/utils/api";
-import { CategorizedProjects, Project, ProjectDetails } from "@/types/projects";
+import { CategorizedProjects, Project, ProjectDetailsResponse } from "@/types/projects";
 import { 
   Github, 
   Globe,
@@ -14,7 +13,7 @@ import {
   ChevronDown
 } from "lucide-react";
 import { sortProjectsByScoreAndPhase } from '@/utils/sorting';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const TelegramIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
@@ -51,18 +50,7 @@ interface LoaderData {
 }
 
 export const loader: LoaderFunction = async ({ params, context }: LoaderFunctionArgs) => {
-  const { PROJECTS_KV } = context as { PROJECTS_KV: KVNamespace };
-  
-  // Try to get categories from KV first
-  const cached = await PROJECTS_KV.get("categories", { type: "json" });
-  const categories = cached ? (cached as CategorizedProjects) : await getCategories();
-
-  // Cache categories if not found in KV
-  if (!cached) {
-    await PROJECTS_KV.put("categories", JSON.stringify(categories), {
-      expirationTtl: 86400 // 24 hours in seconds
-    });
-  }
+  const categories = await getCategories(context);
 
   const category = categories[params.slug!];
 
@@ -75,22 +63,11 @@ export const loader: LoaderFunction = async ({ params, context }: LoaderFunction
 
   // Only fetch details for first 10 projects
   const initialProjects = sortedProjects.slice(0, 10);
-  const projectsWithDetails = await Promise.all(
-    initialProjects.map(async (project) => {
-      try {
-        const details = await fetchProjectDetails(project.id, { PROJECTS_KV });
-        return { ...project, details };
-      } catch (error) {
-        console.error('Error fetching project details:', error);
-        return { ...project, details: null };
-      }
-    })
-  ) as (Project & { details: ProjectDetails | null })[];
 
   return json<LoaderData>({
     category: {
       ...category,
-      projects: projectsWithDetails,
+      projects: initialProjects,
       remainingProjects: sortedProjects.slice(10),
     },
   });
@@ -188,30 +165,22 @@ export default function Category() {
     setExpandedDescriptions({});
   }, [category.title]);
 
-  const loadMore = async () => {
+  const loadMore = useCallback(async () => {
     if (isLoading || !hasMore) return;
     
     setIsLoading(true);
-    const nextBatch = remainingProjects.slice(0, 10);
+    const nextProjects = remainingProjects.slice(0, 10);
     
     try {
-      // Fetch details for next batch
-      const projectsWithDetails = await Promise.all(
-        nextBatch.map(async (project) => {
-          const details = await fetchProjectDetails(project.id);
-          return { ...project, details };
-        })
-      );
-
-      setDisplayedProjects(prev => [...prev, ...projectsWithDetails]);
-      setRemainingProjects(prev => prev.slice(10));
+      setDisplayedProjects(prev => [...prev, ...nextProjects]);
+      setRemainingProjects(prev =>  prev.slice(10));
       setHasMore(remainingProjects.length > 10);
     } catch (error) {
       console.error('Error loading more projects:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [remainingProjects, hasMore, isLoading]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -236,7 +205,7 @@ export default function Category() {
         observer.unobserve(container);
       }
     };
-  }, [hasMore, isLoading]);
+  }, [hasMore, isLoading, loadMore]);
 
   // Show loading skeleton only when navigating TO this category
   if (navigation.state === "loading" && !navigation.location?.pathname.startsWith("/category/")) {
@@ -301,22 +270,24 @@ export default function Category() {
                       </div>
                     )}
                   </div>
-                  {project.details?.profile?.tokens && 
-                    Object.entries(project.details.profile.tokens).some(([_, token]) => 
+                  {project.tokens && 
+                    Object.entries(project.tokens).some(([_, token]) => 
                       token.symbol.trim() && token.name.trim() && token.icon?.small
                     ) && (
                     <div className="flex flex-wrap gap-2 shrink-0">
-                      {Object.entries(project.details.profile.tokens)
-                        .filter(([_, token]) => token.symbol.trim() && token.name.trim() && token.icon?.small)
+                      {Object.entries(project.tokens)
+                        .filter(([_, token]) => token.platform.coingecko && token.platform.coingecko.match(/^[a-zA-Z0-9]+$/) && token.symbol.trim() && token.name.trim())
                         .map(([symbol, token]) => {
-                          const coingeckoUrl = `https://www.coingecko.com/en/coins/${token.name.toLowerCase().replace(/\s+/g, '-')}`;
+                          const coingeckoUrl = `https://www.coingecko.com/en/coins/${token.platform.coingecko}`;
                           const TokenContent = () => (
                             <>
-                              <img 
-                                src={token.icon.small} 
-                                alt={token.name} 
-                                className="w-5 h-5 rounded-full"
-                              />
+                              {token.icon.small &&
+                                <img 
+                                  src={token.icon.small} 
+                                  alt={token.name} 
+                                  className="w-5 h-5 rounded-full"
+                                />
+                              }
                               <span className="text-sm font-medium">{symbol}</span>
                             </>
                           );
@@ -346,14 +317,14 @@ export default function Category() {
                   )}
                 </div>
                 
-                {project.details?.profile?.tagline && (
-                  <p className="text-white/80 mb-4 text-lg break-words">{project.details.profile.tagline}</p>
+                {project.tagline && (
+                  <p className="text-white/80 mb-4 text-lg break-words">{project.tagline}</p>
                 )}
 
                 <div className="flex flex-wrap gap-3 mb-4">
-                  {project.details?.profile?.dapp && project.details.profile.dapp.trim() && (
+                  {project.dapp && project.dapp.trim() && (
                     <a
-                      href={project.details.profile.dapp}
+                      href={project.dapp}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary/20 hover:bg-primary/30 transition-colors shrink-0"
@@ -362,9 +333,9 @@ export default function Category() {
                       Launch App
                     </a>
                   )}
-                  {project.details?.profile?.linktree?.website && project.details.profile.linktree.website.trim() && (
+                  {project.linktree?.website && project.linktree.website.trim() && (
                     <a
-                      href={project.details.profile.linktree.website}
+                      href={project.linktree.website}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-white/20 hover:bg-white/30 transition-colors text-white shrink-0"
@@ -373,9 +344,9 @@ export default function Category() {
                       Website
                     </a>
                   )}
-                  {project.details?.profile?.linktree?.github && project.details.profile.linktree.github.trim() && (
+                  {project.linktree?.github && project.linktree.github.trim() && (
                     <a
-                      href={project.details.profile.linktree.github}
+                      href={project.linktree.github}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#171515] hover:bg-[#171515]/80 transition-colors text-white shrink-0"
@@ -384,9 +355,9 @@ export default function Category() {
                       GitHub
                     </a>
                   )}
-                  {project.details?.profile?.linktree?.twitter && project.details.profile.linktree.twitter.trim() && (
+                  {project.linktree?.twitter && project.linktree.twitter.trim() && (
                     <a
-                      href={project.details.profile.linktree.twitter}
+                      href={project.linktree.twitter}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-black hover:bg-black/80 transition-colors text-white shrink-0"
@@ -395,9 +366,9 @@ export default function Category() {
                       X
                     </a>
                   )}
-                  {project.details?.profile?.linktree?.telegram && project.details.profile.linktree.telegram.trim() && (
+                  {project.linktree?.telegram && project.linktree.telegram.trim() && (
                     <a
-                      href={project.details.profile.linktree.telegram}
+                      href={project.linktree.telegram}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#229ED9] hover:bg-[#229ED9]/80 transition-colors text-white shrink-0"
@@ -406,9 +377,9 @@ export default function Category() {
                       Telegram
                     </a>
                   )}
-                  {project.details?.profile?.linktree?.medium && project.details.profile.linktree.medium.trim() && (
+                  {project.linktree?.medium && project.linktree.medium.trim() && (
                     <a
-                      href={project.details.profile.linktree.medium}
+                      href={project.linktree.medium}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#00AB6C] hover:bg-[#00AB6C]/80 transition-colors text-white shrink-0"
@@ -419,12 +390,12 @@ export default function Category() {
                   )}
                 </div>
 
-                {project.details?.profile?.description && (
+                {project.description && (
                   <div className="prose prose-invert max-w-none overflow-hidden break-words">
                     <motion.div
                       initial={false}
                       animate={{ 
-                        height: !expandedDescriptions[project.id] && project.details.profile.description.length > CONTENT_THRESHOLD
+                        height: !expandedDescriptions[project.id] && project.description.length > CONTENT_THRESHOLD
                           ? "8em" 
                           : "auto"
                       }}
@@ -435,10 +406,10 @@ export default function Category() {
                       remarkPlugins={[remarkGfm]}
                         className="text-white/80 break-words [word-break:break-word] [overflow-wrap:anywhere]"
                       components={{
-                        p: ({node, ...props}) => <p className="mb-4 whitespace-pre-line break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
+                        p: ({node, ...props}) => <p className="mb-4 whitespace-pre-line break-words [word-break:break-word] " {...props} />,
                         a: ({node, ...props}) => (
                           <a 
-                            className="text-primary hover:text-primary/80 transition-colors break-words [word-break:break-word] [overflow-wrap:anywhere]" 
+                            className="text-primary hover:text-primary/80 transition-colors break-words [word-break:break-word] " 
                             target="_blank" 
                             rel="noopener noreferrer" 
                             {...props}
@@ -450,32 +421,32 @@ export default function Category() {
                             {...props}
                           />
                         ),
-                        ul: ({node, ...props}) => <ul className="list-disc pl-6 mb-4 break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
-                        ol: ({node, ...props}) => <ol className="list-decimal pl-6 mb-4 break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
-                        li: ({node, ...props}) => <li className="mb-1 break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
-                        h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-4 break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
-                        h2: ({node, ...props}) => <h2 className="text-xl font-bold mb-3 break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
-                        h3: ({node, ...props}) => <h3 className="text-lg font-bold mb-2 break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
-                        pre: ({node, ...props}) => <pre className="bg-white/10 rounded p-4 mb-4 overflow-x-auto whitespace-pre-wrap break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />,
+                        ul: ({node, ...props}) => <ul className="list-disc pl-6 mb-4 break-words [word-break:break-word] " {...props} />,
+                        ol: ({node, ...props}) => <ol className="list-decimal pl-6 mb-4 break-words [word-break:break-word] " {...props} />,
+                        li: ({node, ...props}) => <li className="mb-1 break-words [word-break:break-word] " {...props} />,
+                        h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-4 break-words [word-break:break-word] " {...props} />,
+                        h2: ({node, ...props}) => <h2 className="text-xl font-bold mb-3 break-words [word-break:break-word] " {...props} />,
+                        h3: ({node, ...props}) => <h3 className="text-lg font-bold mb-2 break-words [word-break:break-word] " {...props} />,
+                        pre: ({node, ...props}) => <pre className="bg-white/10 rounded p-4 mb-4 overflow-x-auto whitespace-pre-wrap break-words [word-break:break-word] " {...props} />,
                         code: ({node, ...props}) => (
-                          <code className="block bg-white/10 rounded p-4 mb-4 overflow-x-auto whitespace-pre-wrap break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />
+                          <code className="block bg-white/10 rounded p-4 mb-4 overflow-x-auto whitespace-pre-wrap break-words [word-break:break-word] " {...props} />
                         ),
                         blockquote: ({node, ...props}) => (
-                          <blockquote className="border-l-4 border-primary/50 pl-4 italic mb-4 break-words [word-break:break-word] [overflow-wrap:anywhere]" {...props} />
+                          <blockquote className="border-l-4 border-primary/50 pl-4 italic mb-4 break-words [word-break:break-word] " {...props} />
                         ),
                       }}
                     >
-                      {project.details.profile.description
+                      {project.description
                         .replace(/\\r\\n/g, '\n')
                         .replace(/\\n/g, '\n')
                         .replace(/\r\n/g, '\n')
                       }
                     </ReactMarkdown>
-                      {!expandedDescriptions[project.id] && project.details.profile.description.length > CONTENT_THRESHOLD && (
+                      {!expandedDescriptions[project.id] && project.description.length > CONTENT_THRESHOLD && (
                         <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-800/90 to-transparent" />
                       )}
                     </motion.div>
-                    {project.details.profile.description.length > CONTENT_THRESHOLD && (
+                    {project.description.length > CONTENT_THRESHOLD && (
                       <motion.button
                         onClick={() => toggleDescription(project.id)}
                         className="mt-2 text-primary hover:text-primary/80 transition-colors text-sm font-medium flex items-center gap-2"

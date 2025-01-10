@@ -1,4 +1,8 @@
-import { ProjectsResponse, CategorizedProjects } from "@/types/projects";
+import {
+  ProjectsResponse,
+  CategorizedProjects,
+  Projects,
+} from "@/types/projects";
 import { fetchProjects } from "./api";
 import { sortProjectsByScoreAndPhase } from "./sorting";
 
@@ -85,27 +89,18 @@ const priorityCategories = [
 ];
 
 export const categorizeProjects = (
-  projectsData: ProjectsResponse
+  projectsData: Projects
 ): CategorizedProjects => {
   const categories: CategorizedProjects = {};
 
-  // Calculate total projects per tag for better distribution
-  const tagCounts = new Map<string, number>();
-  Object.values(projectsData).forEach((project) => {
-    Object.entries(project.profile.tags).forEach(([tag]) => {
-      tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
-    });
-  });
-
   // Sort projects by number of tags to help with distribution
   const sortedProjects = Object.entries(projectsData).sort(
-    ([, a], [, b]) =>
-      Object.keys(b.profile.tags).length - Object.keys(a.profile.tags).length
+    ([, a], [, b]) => Object.keys(b.tags).length - Object.keys(a.tags).length
   );
 
   // Distribute projects across categories
-  sortedProjects.forEach(([projectId, project]) => {
-    Object.entries(project.profile.tags).forEach(([tag, value]) => {
+  sortedProjects.forEach(([_, project]) => {
+    Object.entries(project.tags).forEach(([tag, value]) => {
       if (!categories[tag]) {
         categories[tag] = {
           title: value,
@@ -117,21 +112,10 @@ export const categorizeProjects = (
 
       // Only add the project if it's not already in the category
       const existingProject = categories[tag].projects.find(
-        (p) => p.name === project.profile.name
+        (p) => p.id === project.id
       );
       if (!existingProject) {
-        categories[tag].projects.push({
-          id: projectId,
-          name: project.profile.name,
-          image: project.profile.image.url,
-          description: project.profile.tagline,
-          phase: project.profile.phase ? project.profile.phase : undefined,
-          lnc_score:
-            project.profile.lnc && typeof project.profile.lnc !== "string"
-              ? project.profile.lnc.score
-              : undefined,
-          links: [], // Add actual links when available
-        });
+        categories[tag].projects.push(project);
       }
     });
   });
@@ -156,7 +140,9 @@ export const categorizeProjects = (
   );
 };
 
-export async function getCategories(): Promise<CategorizedProjects> {
-  const projectsData = await fetchProjects();
+export async function getCategories(context?: {
+  PROJECTS_KV?: KVNamespace;
+}): Promise<CategorizedProjects> {
+  const projectsData = await fetchProjects(context);
   return categorizeProjects(projectsData);
 }

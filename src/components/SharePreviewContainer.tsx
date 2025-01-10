@@ -11,6 +11,7 @@ interface SharePreviewContainerProps {
   visibleCategories: Record<string, boolean>;
   theme: Theme;
   showInactive: boolean;
+  showOnlyTokens: boolean;
 }
 
 const SharePreviewContainer = ({
@@ -21,6 +22,7 @@ const SharePreviewContainer = ({
   visibleCategories,
   theme,
   showInactive,
+  showOnlyTokens,
 }: SharePreviewContainerProps) => {
   return (
     <div 
@@ -45,6 +47,7 @@ const SharePreviewContainer = ({
             visibleCategories={visibleCategories}
             theme={theme}
             showInactive={showInactive}
+            showOnlyTokens={showOnlyTokens}
           />
         </div>
       </div>

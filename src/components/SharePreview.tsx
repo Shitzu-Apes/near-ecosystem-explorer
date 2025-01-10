@@ -9,9 +9,10 @@ interface SharePreviewProps {
   visibleCategories: Record<string, boolean>;
   theme?: Theme;
   showInactive: boolean;
+  showOnlyTokens: boolean;
 }
 
-const SharePreview = ({ categories, visibleCategories, theme, showInactive }: SharePreviewProps) => {
+const SharePreview = ({ categories, visibleCategories, theme, showInactive, showOnlyTokens }: SharePreviewProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const visibleCats = Object.entries(categories)
@@ -19,7 +20,14 @@ const SharePreview = ({ categories, visibleCategories, theme, showInactive }: Sh
     .map(([key, category]) => {
       // Filter and sort projects
       const filteredProjects = sortProjectsByScoreAndPhase(
-        category.projects.filter(project => showInactive || project.phase !== 'inactive')
+        category.projects.filter(project => 
+          (showInactive || project.phase !== 'inactive') &&
+          (!showOnlyTokens || (project.tokens && 
+            Object.entries(project.tokens).some(([_, token]) => 
+              token.symbol.trim() && token.name.trim() && token.icon?.small
+            ))
+          )
+        )
       );
       return [key, { ...category, projects: filteredProjects }] as [string, Category];
     })
