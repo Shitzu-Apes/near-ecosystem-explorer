@@ -5,6 +5,13 @@ import { Project } from '@/types/projects';
 import { sortProjectsByScoreAndPhase } from '@/utils/sorting';
 import { sanitizeName } from '@/lib/utils';
 
+// Add phase color mapping
+const phaseColors = {
+  mainnet: 'border-emerald-400/80',
+  'still building': 'border-amber-400/80',
+  inactive: 'border-red-400/80'
+} as const;
+
 interface CategoryCardProps {
   title: string;
   color: string;
@@ -65,7 +72,7 @@ const CategoryCard = ({ title, color, projects, onClick, isPriority = false, slu
                 <img
                   src={project.image}
                   alt={project.name}
-                  className="w-full h-full rounded-full object-cover bg-white p-1"
+                  className={`w-full h-full rounded-full object-cover bg-white p-0.5 border-[3px] ${phaseColors[project.phase || 'inactive']}`}
                 />
               </div>
               <span className="text-xs text-center w-full px-1 break-words [word-break:break-word]">
