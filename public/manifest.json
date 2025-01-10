@@ -4,8 +4,28 @@
   "description": "Explore the comprehensive ecosystem map of NEAR Protocol. Discover DeFi, NFTs, AI, Gaming projects and more.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0A0F1C",
+  "display_override": ["window-controls-overlay"],
   "theme_color": "#0A0F1C",
+  "background_color": "#0A0F1C",
+  "orientation": "any",
+  "id": "/",
+  "scope": "/",
+  "screenshots": [
+    {
+      "src": "/screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "NEAR Ecosystem Map Desktop View"
+    },
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "NEAR Ecosystem Map Mobile View"
+    }
+  ],
   "icons": [
     {
       "src": "/icon-192x192.png",

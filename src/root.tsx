@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { CategoriesProvider } from "@/contexts/CategoriesContext";
 import { useEffect } from "react";
 import { Workbox } from 'workbox-window';
+import { InstallPWA } from "@/components/InstallPWA";
 import stylesheet from "./index.css?url";
 
 export const links: LinksFunction = () => [
@@ -54,6 +55,7 @@ export default function App() {
       <body>
         <CategoriesProvider key="categories-provider">
           <Outlet />
+          <InstallPWA />
           <Toaster />
         </CategoriesProvider>
         <ScrollRestoration />
