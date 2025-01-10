@@ -15,6 +15,102 @@ export const getKVFromContext = (context: { PROJECTS_KV?: KVNamespace }) => {
   return context.PROJECTS_KV;
 };
 
+const isBlogUrl = (url: string): boolean => {
+  const lowerUrl = url.toLowerCase();
+  return (
+    lowerUrl.includes("medium.com") ||
+    lowerUrl.includes("blog") ||
+    lowerUrl.includes("substack.com")
+  );
+};
+
+const isGitbookUrl = (url: string): boolean => {
+  return url.toLowerCase().includes("gitbook.io");
+};
+
+const isDexscreenerUrl = (url: string): boolean => {
+  return url.toLowerCase().includes("dexscreener.com");
+};
+
+const isDiscordUrl = (url: string): boolean => {
+  const lowerUrl = url.toLowerCase();
+  return lowerUrl.includes("discord.com") || lowerUrl.includes("discord.gg");
+};
+
+const isTelegramUrl = (url: string): boolean => {
+  const lowerUrl = url.toLowerCase();
+  return lowerUrl.includes("t.me") || lowerUrl.includes("telegram.me");
+};
+
+const isTwitterUrl = (url: string): boolean => {
+  const lowerUrl = url.toLowerCase();
+  return lowerUrl.includes("twitter.com") || lowerUrl.includes("x.com");
+};
+
+const isGithubUrl = (url: string): boolean => {
+  return url.toLowerCase().includes("github.com");
+};
+
+const validateAndCategorizeUrls = (
+  profile: ProjectDetailsResponse["profile"]
+): { linktree: Project["linktree"]; dapp?: string } => {
+  if (!profile) return { linktree: {}, dapp: undefined };
+
+  const linktree: Project["linktree"] = {};
+  const urls: { url: string; type: string }[] = [];
+  let dapp = profile.dapp;
+
+  // Collect all URLs
+  if (profile.linktree) {
+    Object.entries(profile.linktree).forEach(([type, url]) => {
+      if (url?.trim()) {
+        urls.push({ url: url.trim(), type });
+      }
+    });
+  }
+  if (dapp?.trim()) {
+    urls.push({ url: dapp.trim(), type: "dapp" });
+  }
+
+  // Process each URL
+  urls.forEach(({ url, type }) => {
+    // Skip if already categorized as something else
+    const isAlreadyCategorized = Object.values(linktree).includes(url);
+    if (isAlreadyCategorized) return;
+
+    if (isDexscreenerUrl(url)) {
+      linktree.dexscreener = url;
+      // If it was website or dapp, remove it from those categories
+      if (type === "website") delete linktree.website;
+      if (type === "dapp") dapp = undefined;
+    } else if (isBlogUrl(url)) {
+      linktree.blog = url;
+    } else if (isGitbookUrl(url)) {
+      linktree.docs = url;
+    } else if (isDiscordUrl(url)) {
+      linktree.discord = url;
+    } else if (isTelegramUrl(url)) {
+      linktree.telegram = url;
+    } else if (isTwitterUrl(url)) {
+      linktree.twitter = url;
+    } else if (isGithubUrl(url)) {
+      linktree.github = url;
+    } else if (type === "medium" && !linktree.docs) {
+      // If medium URL doesn't match blog patterns, treat as docs
+      linktree.docs = url;
+    } else if (type === "website") {
+      linktree.website = url;
+    }
+  });
+
+  // Handle dapp after all categorization
+  if (dapp && linktree.website && dapp === linktree.website) {
+    linktree.website = undefined;
+  }
+
+  return { linktree, dapp };
+};
+
 async function updateProjects(context?: { PROJECTS_KV?: KVNamespace }) {
   const kv = isServer() ? context?.PROJECTS_KV : undefined;
 
@@ -31,22 +127,25 @@ async function updateProjects(context?: { PROJECTS_KV?: KVNamespace }) {
 
   const projects = Object.fromEntries(
     (await chunkedFetchProjectDetails(Object.keys(data), 10, context)).map(
-      ({ slug, profile }) => [
-        slug,
-        {
-          id: slug,
-          name: profile.name,
-          image: profile.image.url,
-          tagline: profile.tagline,
-          description: profile.description,
-          tags: profile.tags,
-          dapp: profile.dapp,
-          linktree: profile.linktree,
-          phase: profile.phase ? profile.phase : undefined,
-          lnc_score: profile.lnc ? profile.lnc.score : undefined,
-          tokens: profile.tokens,
-        } satisfies Project,
-      ]
+      ({ slug, profile }) => {
+        const { linktree, dapp } = validateAndCategorizeUrls(profile);
+        return [
+          slug,
+          {
+            id: slug,
+            name: profile.name,
+            image: profile.image.url,
+            tagline: profile.tagline,
+            description: profile.description,
+            tags: profile.tags,
+            dapp,
+            linktree,
+            phase: profile.phase ? profile.phase : undefined,
+            lnc_score: profile.lnc ? profile.lnc.score : undefined,
+            tokens: profile.tokens,
+          } satisfies Project,
+        ];
+      }
     )
   );
 

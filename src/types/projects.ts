@@ -11,11 +11,12 @@ export interface Project {
   linktree?: {
     website?: string;
     twitter?: string;
-    medium?: string;
+    blog?: string;
+    docs?: string;
     telegram?: string;
     discord?: string;
     github?: string;
-    nearsocial?: string;
+    dexscreener?: string;
   };
   phase?: "mainnet" | "inactive" | "still building";
   lnc_score?: number;
@@ -94,7 +95,6 @@ export interface ProjectDetailsResponse {
       telegram?: string;
       discord?: string;
       github?: string;
-      nearsocial?: string;
     };
     lnc?:
       | {

@@ -392,28 +392,40 @@ export default function Category() {
                       Telegram
                     </a>
                   )}
-                  {project.linktree?.medium && project.linktree.medium.trim() && (
+                  {project.linktree?.blog && (
                     <a
-                      href={project.linktree.medium}
+                      href={project.linktree.blog}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg ${
-                        isBlogUrl(project.linktree.medium)
-                          ? 'bg-[#00AB6C] hover:bg-[#00AB6C]/80'
-                          : 'bg-blue-600 hover:bg-blue-600/80'
-                      } transition-colors text-white shrink-0`}
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#00AB6C] hover:bg-[#00AB6C]/80 transition-colors text-white shrink-0"
                     >
-                      {isBlogUrl(project.linktree.medium) ? (
-                        <>
-                          <BlogIcon />
-                          Blog
-                        </>
-                      ) : (
-                        <>
-                          <DocIcon />
-                          Docs
-                        </>
-                      )}
+                      <BlogIcon />
+                      Blog
+                    </a>
+                  )}
+                  {project.linktree?.docs && (
+                    <a
+                      href={project.linktree.docs}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 hover:bg-blue-600/80 transition-colors text-white shrink-0"
+                    >
+                      <DocIcon />
+                      Docs
+                    </a>
+                  )}
+                  {project.linktree?.dexscreener && (
+                    <a
+                      href={project.linktree.dexscreener}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#1c1c1c] hover:bg-[#1c1c1c]/80 transition-colors text-white shrink-0"
+                    >
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-none stroke-current stroke-2">
+                        <path d="M3 3v18h18" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M3 15l4-4 4 4 8-8" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Chart
                     </a>
                   )}
                 </div>
