@@ -3,6 +3,7 @@ import { CategorizedProjects, Category } from '@/types/projects';
 import * as d3 from 'd3';
 import { Theme } from '@/types/theme';
 import { sortProjectsByScoreAndPhase } from '@/utils/sorting';
+import { categoryRanks } from '@/utils/projectUtils';
 
 interface SharePreviewProps {
   categories: CategorizedProjects;
@@ -15,19 +16,44 @@ interface SharePreviewProps {
 const SharePreview = ({ categories, visibleCategories, theme, showInactive, showOnlyTokens }: SharePreviewProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Create a map of project IDs to their highest ranked category
+  const getProjectHighestRankedCategory = (projectId: string): string | null => {
+    let highestRank = -1;
+    let highestRankedCategory = null;
+
+    Object.entries(categories).forEach(([categoryKey, category]) => {
+      const projectInCategory = category.projects.find(p => p.id === projectId);
+      if (projectInCategory) {
+        const rank = categoryRanks[categoryKey] || 0;
+        if (rank > highestRank) {
+          highestRank = rank;
+          highestRankedCategory = categoryKey;
+        }
+      }
+    });
+
+    return highestRankedCategory;
+  };
+
   const visibleCats = Object.entries(categories)
     .filter(([key]) => visibleCategories[key])
     .map(([key, category]) => {
       // Filter and sort projects
       const filteredProjects = sortProjectsByScoreAndPhase(
-        category.projects.filter(project => 
-          (showInactive || project.phase !== 'inactive') &&
-          (!showOnlyTokens || (project.tokens && 
+        category.projects.filter(project => {
+          // Basic filters
+          const passesInactiveFilter = showInactive || project.phase !== 'inactive';
+          const passesTokenFilter = !showOnlyTokens || (project.tokens && 
             Object.entries(project.tokens).some(([_, token]) => 
               token.symbol.trim() && token.name.trim() && token.icon?.small
-            ))
-          )
-        )
+            ));
+          
+          // Deduplication filter - only keep project if this is its highest ranked category
+          const highestRankedCategory = getProjectHighestRankedCategory(project.id);
+          const isInHighestRankedCategory = highestRankedCategory === key;
+
+          return passesInactiveFilter && passesTokenFilter && isInHighestRankedCategory;
+        })
       );
       return [key, { ...category, projects: filteredProjects }] as [string, Category];
     })
