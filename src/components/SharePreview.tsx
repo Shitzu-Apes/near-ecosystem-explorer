@@ -256,7 +256,7 @@ const SharePreview = ({ categories, visibleCategories, theme, showInactive, show
       const fontSize = Math.max(10, Math.min(13, Math.floor(finalIconSize / 4.5)));
       
       const sanitizeName = (name: string) => {
-        const parts = name.split(/[^\w\s$]+/);
+        const parts = name.split(/[^\w\s.$]+/);
         return parts[0].trim();
       };
 
