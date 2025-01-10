@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -20,21 +21,34 @@ export function InstallPWA() {
       }
 
       // Show toast notification
-      toast({
+      const { dismiss } = toast({
         title: "Install NEAR Ecosystem Map",
         description: "Add this app to your home screen for quick access.",
         action: (
-          <Button
-            variant="default"
-            onClick={() => {
-              // This will trigger the native prompt
-              e.prompt();
-            }}
-          >
-            Install
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="default"
+              onClick={() => {
+                // This will trigger the native prompt
+                e.prompt();
+              }}
+            >
+              Install
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => {
+                localStorage.setItem(INSTALL_PROMPT_DISMISSED, 'true');
+                dismiss();
+              }}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         ),
         duration: 30000,
+        className: "[&>[role=button]]:hidden", // Hide the default close button
         onOpenChange: (open) => {
           // When toast is dismissed (closed), remember it
           if (!open) {

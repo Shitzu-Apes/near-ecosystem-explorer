@@ -16,6 +16,7 @@ module.exports = {
   ],
   skipWaiting: true,
   clientsClaim: true,
+  cleanupOutdatedCaches: true,
   runtimeCaching: [
     {
       // Cache build assets (CSS, JS, etc)
