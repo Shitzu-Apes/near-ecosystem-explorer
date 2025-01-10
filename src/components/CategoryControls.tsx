@@ -88,7 +88,7 @@ const CategoryControls: React.FC<CategoryControlsProps> = ({
             variant="outline"
             size="icon"
             onClick={handleFeaturedClick}
-            className={showOnlyFeatured ? 'text-primary' : ''}
+            className={`${showOnlyFeatured ? 'text-primary border-primary' : ''} active:scale-95 transition-transform touch-manipulation`}
           >
             {showOnlyFeatured ? <StarIcon className="w-4 h-4 fill-current" /> : <Star className="w-4 h-4" />}
           </Button>
@@ -96,7 +96,7 @@ const CategoryControls: React.FC<CategoryControlsProps> = ({
             variant="outline"
             size="icon"
             onClick={onToggleInactive}
-            className={showInactive ? 'text-amber-500' : ''}
+            className={`${showInactive ? 'text-amber-500 border-amber-500' : ''} active:scale-95 transition-transform touch-manipulation`}
             title="Show inactive projects"
           >
             <AlertCircle className="w-4 h-4" />
@@ -105,7 +105,7 @@ const CategoryControls: React.FC<CategoryControlsProps> = ({
             variant="outline"
             size="icon"
             onClick={onToggleTokens}
-            className={showOnlyTokens ? 'text-primary' : ''}
+            className={`${showOnlyTokens ? 'text-primary border-primary' : ''} active:scale-95 transition-transform touch-manipulation`}
             title="Show projects with tokens"
           >
             <Coins className="w-4 h-4" />
@@ -114,6 +114,7 @@ const CategoryControls: React.FC<CategoryControlsProps> = ({
             variant="outline"
             size="icon"
             onClick={onShareClick}
+            className="active:scale-95 transition-transform touch-manipulation"
           >
             <Share2 className="w-4 h-4" />
           </Button>
@@ -125,7 +126,7 @@ const CategoryControls: React.FC<CategoryControlsProps> = ({
           <motion.button
             key={key}
             onClick={() => handleTagClick(key)}
-            className={`px-4 py-2 rounded-full text-sm transition-colors ${
+            className={`px-4 py-2 rounded-full text-sm transition-all active:scale-95 touch-manipulation ${
               visibleCategories[key]
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
