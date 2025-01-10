@@ -27,9 +27,17 @@ const DiscordIcon = () => (
   </svg>
 );
 
-const MediumIcon = () => (
+const BlogIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
-    <path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"/>
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+  </svg>
+);
+
+const DocIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+    <path d="M14 3v4h4"/>
   </svg>
 );
 
@@ -135,6 +143,13 @@ const getPhaseConfig = (phase: string | undefined) => {
         className: 'bg-gray-500/20 text-gray-400'
       };
   }
+};
+
+const isBlogUrl = (url: string): boolean => {
+  const lowerUrl = url.toLowerCase();
+  return lowerUrl.includes('medium.com') || 
+         lowerUrl.includes('blog') || 
+         lowerUrl.includes('substack.com');
 };
 
 export default function Category() {
@@ -382,10 +397,23 @@ export default function Category() {
                       href={project.linktree.medium}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#00AB6C] hover:bg-[#00AB6C]/80 transition-colors text-white shrink-0"
+                      className={`inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg ${
+                        isBlogUrl(project.linktree.medium)
+                          ? 'bg-[#00AB6C] hover:bg-[#00AB6C]/80'
+                          : 'bg-blue-600 hover:bg-blue-600/80'
+                      } transition-colors text-white shrink-0`}
                     >
-                      <MediumIcon />
-                      Medium
+                      {isBlogUrl(project.linktree.medium) ? (
+                        <>
+                          <BlogIcon />
+                          Blog
+                        </>
+                      ) : (
+                        <>
+                          <DocIcon />
+                          Docs
+                        </>
+                      )}
                     </a>
                   )}
                 </div>
